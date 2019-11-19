@@ -132,7 +132,6 @@ clear_sky_rad = function(doy, lat, elev){
 #' @export
 #'
 outgoing_rad = function(tmax, tmin, R.s, e.a, R.so){
-  R.ns = (1 - 0.23)*R.s
   R.nl = 4.903e-09*(((tmax + 273.16)^4 + (tmin + 273.16))/2)*(0.34-0.14*sqrt(e.a))*(1.35*(R.s/R.so) - 0.35)
   return(R.nl)
 }
@@ -181,7 +180,7 @@ ET_PenmanMonteith_daily = function(x, elev, lat, wind=NULL){
   tmax = x$tmax_C
   tmin = x$tmin_C
   tmean = (tmax + tmin)/2
-  doy = x$yday
+  doy = as.numeric(strftime(x$Date, "%j"))
   rh.max = x$RHmax
   rh.min = x$RHmin
   vp = x$vp
@@ -191,6 +190,7 @@ ET_PenmanMonteith_daily = function(x, elev, lat, wind=NULL){
   vap.curve = vapor_curve(tmean)
 
   #Auxilary calculations for wind terms
+  DT = vap.curve/(vap.curve + psyc.const*(1+0.34*u))
   PT = psyc.const/(vap.curve + (psyc.const*(1+0.34*u)))
   TT = (900/(tmean + 273))*u
 
@@ -211,8 +211,9 @@ ET_PenmanMonteith_daily = function(x, elev, lat, wind=NULL){
   }
 
   #Solar angle and radiation calculations
+  R.ns = (1 - 0.23)*R.s
   R.so = clear_sky_rad(doy, lat, elev)
-  R.nl = outgoing_rad(x, R.s, e.a, R.so)
+  R.nl = outgoing_rad(tmax, tmin, R.s, e.a, R.so)
   R.n = R.ns - R.nl
   R.ng = 0.408*R.n
 
