@@ -7,7 +7,8 @@
 ET_Thorn_monthly(x)
 }
 \arguments{
-\item{x}{A monthly time series data frame containing Date, tmean_C (deg C), and daylength (hours)}
+\item{x}{A monthly time series data frame containing Date, tmean_C (deg C), and daylength (hours)
+ET_Thorn_monthly()}
 }
 \description{
 Calculates Thornthwaite PET from a monthly time series of Tmean and daylength.
