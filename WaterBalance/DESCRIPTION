@@ -1,13 +1,13 @@
 Package: WaterBalance
-Title: What the Package Does (One Line, Title Case)
+Title: Functions for implementing Dave Thoma's water balance model.
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Amanda",
+           family = "Carlson",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
+           email = "amanda_carlson@partner.nps.gov",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Description: R version of water balance model developed by Dave Thoma (originally developed as an Excel macro-enabled workbook. Takes daily climate data inputs from multiple sources and generates daily water balance variables based on precip and PET. 
 Imports:
 	geosphere,
 	lubridate
