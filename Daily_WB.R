@@ -1,3 +1,8 @@
+############################################# DAILY_WB ####################################################
+#### Script to implement functions in 'WaterBalance' package, calculating water balance variables at a single site at daily time steps.
+#### Created 11/5/2019 by ARC
+#### v01 - Calculates water balance output table and aggregates results to monthly and annual averages/totals
+###########################################################################################################
 
 rm(list=ls())
 
@@ -14,18 +19,17 @@ library("WaterBalance")
 
 ############################################################# USER INPUTS ##################################################################### 
 
-#Formatted input data as a daily time series. Needs to include the following columns: Date, ppt_mm, tmax_C, tmin_C, and tmean_C (temp.'s in deg. Celsius)
-DailyClimData = read.csv("~/WaterBalance/WB R package/test_maca.csv")
+#Formatted input data as a daily time series. See guidance for required columns, based on PET calculation method.
+DailyClimData = read.csv("~/WaterBalance/WB R package/test_daymet.csv")
 DailyClimData$Date = as.Date(DailyClimData$Date, "%m/%d/%Y")
-names(DailyClimData) = c("Date", "ppt_mm", "tmin_C", "tmax_C") #Make sure columns are named correctly
 
 #Location
 SiteID = "Test" #ID of location (used to label output files and plots)
-Lat = 37.4516
-Lon = -106.8676
+Lat = 37.1747
+Lon = -108.491
 
 #Topographic characteristics 
-Elev = 2890  #Elevation (meters)
+Elev = 2007  #Elevation (meters)
 Aspect = 0  #Aspect (degrees)
 Slope = 0 #Slope (degrees)
   
@@ -39,7 +43,7 @@ Soil.Init = 0 #Initial soil moisture value for soil moisture change calculations
 T.Base = 0 #Threshold temperature (deg C) for growing degree-days calculation
 
 #Method for PET calculation 
-Method = "Hamon"  #Hamon is default method for daily PRISM and MACA data (containing only Tmax, Tmin, and Date). 
+Method = "Penman-Monteith"  #Hamon is default method for daily PRISM and MACA data (containing only Tmax, Tmin, and Date). 
 
 #Shade coefficient for heat load PET modification (method of Lutz et al., 2010)
 Shade.Coeff = 1.0  #Default is 1.0 
@@ -63,7 +67,15 @@ DailyWB$MELT = get_melt(DailyWB$PACK, DailyWB$SNOW, DailyWB$F, Snowpack.Init)
 DailyWB$W = DailyWB$MELT + DailyWB$RAIN
 if(Method == "Hamon"){
   DailyWB$PET = ET_Hamon_daily(DailyWB)
-} 
+  print("Calculating Hamon PET")
+} else {
+  if(Method == "Penman-Monteith"){
+    print("Calculating Penman-Monteith PET")
+    DailyWB$PET = ET_PenmanMonteith_daily(DailyWB, Elev, Lat, Wind)
+  } else {
+    print("Error - PET method not found")
+  }
+}
 DailyWB$PET = modify_PET(DailyWB$PET, Slope, Aspect, Lat, Shade.Coeff)
 DailyWB$W_PET = DailyWB$W - DailyWB$PET
 DailyWB$SOIL = get_soil(DailyWB$W, DailyWB$PET, SWC.Max, Soil.Init)
