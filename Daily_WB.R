@@ -43,7 +43,7 @@ Soil.Init = 0 #Initial soil moisture value for soil moisture change calculations
 T.Base = 0 #Threshold temperature (deg C) for growing degree-days calculation
 
 #Method for PET calculation 
-Method = "Penman-Monteith"  #Hamon is default method for daily PRISM and MACA data (containing only Tmax, Tmin, and Date). 
+Method = "Hamon"  #Hamon is default method for daily PRISM and MACA data (containing only Tmax, Tmin, and Date). Penman-Monteith requires additional solar radiation and vapor pressure/relative humidity data. 
 
 #Shade coefficient for heat load PET modification (method of Lutz et al., 2010)
 Shade.Coeff = 1.0  #Default is 1.0 
