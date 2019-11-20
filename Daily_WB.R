@@ -20,7 +20,7 @@ library("WaterBalance")
 ############################################################# USER INPUTS ##################################################################### 
 
 #Formatted input data as a daily time series. See guidance for required columns, based on PET calculation method.
-DailyClimData = read.csv("~/WaterBalance/WB R package/test_daymet.csv")
+DailyClimData = read.csv("~/WaterBalance/WB R package/test_maca.csv")
 DailyClimData$Date = as.Date(DailyClimData$Date, "%m/%d/%Y")
 
 #Location
