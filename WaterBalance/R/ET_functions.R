@@ -12,9 +12,9 @@
 #' Returns daylength in hours for a series of dates, based on latitude. Calls the 'geosphere' package.
 #' @param dates A series of dates containing year, month, and day
 #' @param lat Latitude (degrees)
-#' get_daylength()
 #' @export
-#'
+#'get_daylength()
+
 get_daylength = function(dates, lat){
   yday = as.numeric(strftime(dates, "%j"))
   dayl_h = geosphere::daylength(lat, yday)
@@ -25,9 +25,9 @@ get_daylength = function(dates, lat){
 #'
 #' Calculates mean saturation vapor pressure (kPa) of air based on temperature (deg C).
 #' @param temp Temperature (deg C)
-#' get_svp()
 #' @export
-#'
+#' get_svp()
+
 get_svp = function(temp){
   svp = 0.6108*exp((17.27*temp)/(temp + 237.3))
   return(svp)
@@ -38,9 +38,9 @@ get_svp = function(temp){
 #' Calculates relative humidity (%) from atmospheric vapor pressure and temperature
 #' @param vp Vapor pressure (kPa)
 #' @param temp Temperature (deg C)
-#' get_rh()
 #' @export
-#'
+#' get_rh()
+
 get_rh = function(vp, temp){
   svp = get_svp(temp)
   rh = vp/svp
@@ -54,9 +54,9 @@ get_rh = function(vp, temp){
 #' @param rhmin Daily minimum relative humidity (%).
 #' @param tmax Daily maximum temperature (deg C).
 #' @param tmin Daily minimum temperature (deg C).
-#' actual_vp()
 #' @export
-#'
+#' actual_vp()
+
 actual_vp = function(rhmax, rhmin, tmax, tmin){
   e.tmax = get_svp(tmax)
   e.tmin = get_svp(tmin)
@@ -68,9 +68,9 @@ actual_vp = function(rhmax, rhmin, tmax, tmin){
 #'
 #' Calculates the slope of the saturation vapor curve for a given temperature.
 #' @param temp A time series vector or single value of temperatures (deg C).
-#' vapor curve()
 #' @export
-#'
+#' vapor curve()
+
 vapor_curve = function(temp){
   vap.curve = 4098*(0.6108*exp((17.27*temp/(temp+237.3)))/(temp+273.3)^2)
   return(vap.curve)
@@ -80,9 +80,9 @@ vapor_curve = function(temp){
 #'
 #' Estimates atmospheric pressure (kPa) at a given elevation.
 #' @param elev Elevation (m).
-#' atm_press()
 #' @export
-#'
+#' atm_press()
+
 atm_press = function(elev){
   atm.press = 101.3*((293 - 0.0065*elev)/293)^5.26
   return(atm.press)
@@ -92,9 +92,9 @@ atm_press = function(elev){
 #'
 #' Calculates the psychrometric constant relating partial pressure of water in air to the air temperature, based on atmospheric pressure. Calls the atm_press() function to estimate atmospheric pressure from elevation.
 #' @param elev Elevation (m).
-#' psyc_constant()
 #' @export
-#'
+#' psyc_constant()
+
 psyc_constant = function(elev){
   atm.press = atm_press(elev)
   psyc.const = 0.000665*atm.press
@@ -107,9 +107,9 @@ psyc_constant = function(elev){
 #' @param doy Day-of-year (Julian date).
 #' @param lat Latitude (degrees).
 #' @param elev Elevation (m).
-#' clear_sky_rad()
 #' @export
-#'
+#' clear_sky_rad()
+
 clear_sky_rad = function(doy, lat, elev){
   d.r = 1 + 0.033*cos(((2*pi)/365)*doy)
   declin = 0.409*sin(((2*pi)/365)*doy)
@@ -128,9 +128,9 @@ clear_sky_rad = function(doy, lat, elev){
 #' @param R.s Incoming solar radiation (MJ m^-2 day^-1).
 #' @param e.a Actual vapor pressure (kPa).
 #' @param R.so Clear-sky radiation (MJ m^-2 day^-1).
-#' outgoing_rad()
 #' @export
-#'
+#' outgoing_rad()
+
 outgoing_rad = function(tmax, tmin, R.s, e.a, R.so){
   R.nl = 4.903e-09*(((tmax + 273.16)^4 + (tmin + 273.16))/2)*(0.34-0.14*sqrt(e.a))*(1.35*(R.s/R.so) - 0.35)
   return(R.nl)
@@ -142,9 +142,9 @@ outgoing_rad = function(tmax, tmin, R.s, e.a, R.so){
 #'
 #' Calculates Hamon PET from a daily time series of Tmean and daylength.
 #' @param x A daily time series data frame containing tmean_C (deg C), and daylength (hours)
-#' ET_Hamon_daily()
 #' @export
-#'
+#' ET_Hamon_daily()
+
 ET_Hamon_daily = function(x){
   et.hamon = 0.1651*(x$daylength/12)*(216.7*(6.108*exp((17.26*x$tmean_C)/(x$tmean_C+273.3))))/(x$tmean_C+273.3)
   return(et.hamon)
@@ -154,9 +154,9 @@ ET_Hamon_daily = function(x){
 #'
 #' Calculates PET from monthly Tmean and daylength, according to the Thornthwaite method.
 #' @param x A monthly time series data frame containing Date, tmean_C (deg C), and daylength (hours)
-#' ET_Thorn_monthly()
 #' @export
-#'
+#' ET_Thorn_monthly()
+
 ET_Thorn_monthly = function(x){
   x$month = strftime(x$Date, "%m")
   N = lubridate::days_in_month(as.numeric(x$month))
@@ -172,9 +172,9 @@ ET_Thorn_monthly = function(x){
 #' @param elev Elevation of the site (m).
 #' @param lat Latitude of the site (degrees).
 #' @param wind (optional) An estimated value for daily average wind speeds (m/s). Use if input data frame does not contain daily wind speed values.
-#' ET_PenmanMonteith_daily()
 #' @export
-#'
+#' ET_PenmanMonteith_daily()
+
 ET_PenmanMonteith_daily = function(x, elev, lat, wind=NULL){
   #Inputs
   tmax = x$tmax_C
