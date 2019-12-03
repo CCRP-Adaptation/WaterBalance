@@ -1,17 +1,12 @@
 Package: WaterBalance
-Title: Functions for implementing Dave Thoma's water balance model.
-Version: 0.0.0.9000
-Authors@R: 
-    person(given = "Amanda",
-           family = "Carlson",
-           role = c("aut", "cre"),
-           email = "amanda_carlson@partner.nps.gov",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: R version of water balance model developed by Dave Thoma (originally developed as an Excel macro-enabled workbook. Takes daily climate data inputs from multiple sources and generates daily water balance variables based on precip and PET. 
-Imports:
-	geosphere,
-	lubridate
-License: What license it uses
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: Who wrote it
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.0
