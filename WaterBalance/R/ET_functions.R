@@ -13,7 +13,7 @@
 #' @param dates A series of dates containing year, month, and day
 #' @param lat Latitude (degrees)
 #' @export
-#'get_daylength()
+#' get_daylength()
 
 get_daylength = function(dates, lat){
   yday = as.numeric(strftime(dates, "%j"))
@@ -69,7 +69,7 @@ actual_vp = function(rhmax, rhmin, tmax, tmin){
 #' Calculates the slope of the saturation vapor curve for a given temperature.
 #' @param temp A time series vector or single value of temperatures (deg C).
 #' @export
-#' vapor curve()
+#' vapor_curve()
 
 vapor_curve = function(temp){
   vap.curve = 4098*(0.6108*exp((17.27*temp/(temp+237.3)))/(temp+273.3)^2)
