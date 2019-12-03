@@ -9,9 +9,9 @@
 #'
 #' Calculates a freeze factor from 0-1 based on mean temperature
 #' @param tmean A vector of daily mean temperatures (deg C).
-#' get_freeze()
 #' @export
-#'
+#' get_freeze()
+
 get_freeze = function(tmean){
   freeze = ifelse(tmean > 6, 1, ifelse(tmean < 0, 0, tmean*(1/6)))
   return(freeze)
@@ -22,9 +22,9 @@ get_freeze = function(tmean){
 #' Calculates rainfall totals based on precipitation and freeze factor
 #' @param ppt A vector of precipitation values.
 #' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
-#' get_rain()
 #' @export
-#'
+#' get_rain()
+
 get_rain = function(ppt, freeze){
   rain = ppt*freeze
   return(rain)
@@ -35,9 +35,9 @@ get_rain = function(ppt, freeze){
 #' Calculates snowfall totals based on precipitation and freeze factor
 #' @param ppt A vector of precipitation values.
 #' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
-#' get_snow()
 #' @export
-#'
+#' get_snow()
+
 get_snow = function(ppt, freeze){
   snow = (1 - freeze)*ppt
   return(snow)
@@ -49,9 +49,9 @@ get_snow = function(ppt, freeze){
 #' @param ppt A vector of precipitation values.
 #' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
 #' @param p.0 (optional) Initial snowpack value. Default is 0.
-#' get_snowpack()
 #' @export
-#'
+#' get_snowpack()
+
 get_snowpack = function(ppt, freeze, p.0=NULL){
   p.i = ifelse(!is.null(p.0), p.0, 0)
   snowpack = c()
@@ -69,9 +69,9 @@ get_snowpack = function(ppt, freeze, p.0=NULL){
 #' @param snow A time series vector of snowfall values.
 #' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
 #' @param p.0 (optional) Initial snowpack value. Default is 0.
-#' get_snowpack()
 #' @export
-#'
+#' get_snowpack()
+
 get_melt = function(snowpack, snow, freeze, p.0=NULL){
   p.i = ifelse(!is.null(p.0), p.0, 0)
   melt = c()
@@ -90,9 +90,9 @@ get_melt = function(snowpack, snow, freeze, p.0=NULL){
 #' @param aspect Aspect of the site (in degrees).
 #' @param lat Latitude of the site (in degrees).
 #' @param shade.coeff (optional) A shade coefficient from 0-1. Default is 1.
-#' modify_PET()
 #' @export
-#'
+#' modify_PET()
+
 modify_PET = function(pet, slope, aspect, lat, shade.coeff=NULL){
   f.aspect = abs(180 - abs(aspect - 225))
   lat.rad = ifelse(lat > 66.7, (66.7/180)*pi, (lat/180)*pi)
@@ -111,9 +111,9 @@ modify_PET = function(pet, slope, aspect, lat, shade.coeff=NULL){
 #' @param pet A time series vector of PET.
 #' @param swc.max The maximum soil water-holding capacity of the soil layer being assessed.
 #' @param swc.0 (optional) The initial soil water content value. Default is 0.
-#' get_soil()
 #' @export
-#'
+#' get_soil()
+
 get_soil = function(w, pet, swc.max, swc.0){
   swc.i = ifelse(!is.null(swc.0), swc.0, 0)
   soil = c()
@@ -131,9 +131,9 @@ get_soil = function(w, pet, swc.max, swc.0){
 #' @param pet A time series vector of PET.
 #' @param swc A time series vector of soil water content.
 #' @param swc.0 (optional) The initial soil water content value. Default is 0.
-#' get_AET()
 #' @export
-#'
+#' get_AET()
+
 get_AET = function(w, pet, swc, swc.0){
   swc.i = ifelse(!is.null(swc.0), swc.0, 0)
   AET = c()
@@ -149,9 +149,9 @@ get_AET = function(w, pet, swc, swc.0){
 #' Calculates growing degree-days at daily time steps based on mean temperature and a threshold temperature
 #' @param tmean A time series vector of daily mean temperatures (deg C)
 #' @param tbase (optional) A threshold temperature, above which growing degree-days are calculated. Default is 0.
-#' get_GDD()
 #' @export
-#'
+#' get_GDD()
+
 get_GDD = function(tmean, tbase){
   tb = ifelse(!is.null(tbase), tbase, 0)
   GDD = ifelse(tmean < tbase, 0, tmean - tb)
