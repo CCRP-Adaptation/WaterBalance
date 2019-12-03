@@ -7,8 +7,7 @@
 get_freeze(tmean)
 }
 \arguments{
-\item{tmean}{A vector of daily mean temperatures (deg C).
-get_freeze()}
+\item{tmean}{A vector of daily mean temperatures (deg C).}
 }
 \description{
 Calculates a freeze factor from 0-1 based on mean temperature

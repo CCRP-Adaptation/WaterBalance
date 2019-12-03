@@ -9,8 +9,7 @@ get_daylength(dates, lat)
 \arguments{
 \item{dates}{A series of dates containing year, month, and day}
 
-\item{lat}{Latitude (degrees)
-get_daylength()}
+\item{lat}{Latitude (degrees)}
 }
 \description{
 Returns daylength in hours for a series of dates, based on latitude. Calls the 'geosphere' package.

@@ -13,8 +13,7 @@ get_AET(w, pet, swc, swc.0)
 
 \item{swc}{A time series vector of soil water content.}
 
-\item{swc.0}{(optional) The initial soil water content value. Default is 0.
-get_AET()}
+\item{swc.0}{(optional) The initial soil water content value. Default is 0.}
 }
 \description{
 Calculates actual evapotranspiration (AET) from available water, PET, and soil water.

@@ -9,8 +9,7 @@ get_GDD(tmean, tbase)
 \arguments{
 \item{tmean}{A time series vector of daily mean temperatures (deg C)}
 
-\item{tbase}{(optional) A threshold temperature, above which growing degree-days are calculated. Default is 0.
-get_GDD()}
+\item{tbase}{(optional) A threshold temperature, above which growing degree-days are calculated. Default is 0.}
 }
 \description{
 Calculates growing degree-days at daily time steps based on mean temperature and a threshold temperature

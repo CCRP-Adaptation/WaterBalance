@@ -7,8 +7,7 @@
 ET_Hamon_daily(x)
 }
 \arguments{
-\item{x}{A daily time series data frame containing tmean_C (deg C), and daylength (hours)
-ET_Hamon_daily()}
+\item{x}{A daily time series data frame containing tmean_C (deg C), and daylength (hours)}
 }
 \description{
 Calculates Hamon PET from a daily time series of Tmean and daylength.

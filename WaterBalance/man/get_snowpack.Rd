@@ -11,8 +11,7 @@ get_snowpack(ppt, freeze, p.0 = NULL)
 
 \item{freeze}{A vector of freeze factor values, calculated from Tmean. Values are 0-1.}
 
-\item{p.0}{(optional) Initial snowpack value. Default is 0.
-get_snowpack()}
+\item{p.0}{(optional) Initial snowpack value. Default is 0.}
 }
 \description{
 Calculates snowpack accumulation at time steps, from a time series of precipitation values, freeze factor, and an initial snowpack value

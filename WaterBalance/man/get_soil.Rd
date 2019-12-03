@@ -13,8 +13,7 @@ get_soil(w, pet, swc.max, swc.0)
 
 \item{swc.max}{The maximum soil water-holding capacity of the soil layer being assessed.}
 
-\item{swc.0}{(optional) The initial soil water content value. Default is 0.
-get_soil()}
+\item{swc.0}{(optional) The initial soil water content value. Default is 0.}
 }
 \description{
 Calculates soil water content from available water (rain + snowmelt), PET, max. water-holding capacity, and initial SWC.

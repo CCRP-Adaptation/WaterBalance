@@ -15,8 +15,7 @@ modify_PET(pet, slope, aspect, lat, shade.coeff = NULL)
 
 \item{lat}{Latitude of the site (in degrees).}
 
-\item{shade.coeff}{(optional) A shade coefficient from 0-1. Default is 1.
-modify_PET()}
+\item{shade.coeff}{(optional) A shade coefficient from 0-1. Default is 1.}
 }
 \description{
 Modifies PET by heat load according to method by Lutz et al. (2010)
