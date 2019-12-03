@@ -7,9 +7,9 @@
 actual_vp(rhmax, rhmin, tmax, tmin)
 }
 \arguments{
-\item{rhmax}{Daily maximum relative humidity (%).}
+\item{rhmax}{Daily maximum relative humidity (percent).}
 
-\item{rhmin}{Daily minimum relative humidity (%).}
+\item{rhmin}{Daily minimum relative humidity (percent).}
 
 \item{tmax}{Daily maximum temperature (deg C).}
 

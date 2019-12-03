@@ -7,7 +7,7 @@
 ET_PenmanMonteith_daily(x, elev, lat, wind = NULL)
 }
 \arguments{
-\item{x}{A daily time series data frame containing Date (date object), tmax_C (deg C), tmin_C (deg C), srad (MJ m^-2 day^-1). Optionally contains RHmax (%), RHmin (%), vp (kPa), and wind (m/s).}
+\item{x}{A daily time series data frame containing Date (date object), tmax_C (deg C), tmin_C (deg C), srad (MJ m^-2 day^-1). Optionally contains RHmax (percent), RHmin (percent), vp (kPa), and wind (m/s).}
 
 \item{elev}{Elevation of the site (m).}
 
