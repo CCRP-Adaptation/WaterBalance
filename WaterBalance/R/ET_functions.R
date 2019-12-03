@@ -50,8 +50,8 @@ get_rh = function(vp, temp){
 #' Actual Vapor Pressure
 #'
 #' Calculates actual vapor pressure (kPa) of air based on maximum and minimum relative humidity and maximum and minimum temperature.
-#' @param rhmax Daily maximum relative humidity (%).
-#' @param rhmin Daily minimum relative humidity (%).
+#' @param rhmax Daily maximum relative humidity (percent).
+#' @param rhmin Daily minimum relative humidity (percent).
 #' @param tmax Daily maximum temperature (deg C).
 #' @param tmin Daily minimum temperature (deg C).
 #' @export
@@ -91,7 +91,7 @@ atm_press = function(elev){
 #' Psychrometric Constant
 #'
 #' Calculates the psychrometric constant relating partial pressure of water in air to the air temperature, based on atmospheric pressure. Calls the atm_press() function to estimate atmospheric pressure from elevation.
-#' @param elev Elevation (m).
+#' @param elev Elevation (m)
 #' @export
 #' psyc_constant()
 
@@ -103,10 +103,10 @@ psyc_constant = function(elev){
 
 #' Clear Sky Radiation
 #'
-#' Calculates incoming clear-sky radiation (MJ m^-2 day^-1) based on day-of-year, latitude, and elevation.
-#' @param doy Day-of-year (Julian date).
-#' @param lat Latitude (degrees).
-#' @param elev Elevation (m).
+#' Calculates incoming clear-sky radiation (MJ m^-2 day^-1) based on day-of-year, latitude, and elevation
+#' @param doy Day-of-year (Julian date)
+#' @param lat Latitude (degrees)
+#' @param elev Elevation (m)
 #' @export
 #' clear_sky_rad()
 
@@ -168,7 +168,7 @@ ET_Thorn_monthly = function(x){
 #' Penman-Monteith Daily PET
 #'
 #' Calculates PET (mm) from daily Tmax, Tmin, solar radiation, elevation, and latitude, according to the Penman-Monteith method. May also use daily maximum and minimum relative humidity, atmospheric vapor pressure, and wind speeds.
-#' @param x A daily time series data frame containing Date (date object), tmax_C (deg C), tmin_C (deg C), srad (MJ m^-2 day^-1). Optionally contains RHmax (%), RHmin (%), vp (kPa), and wind (m/s).
+#' @param x A daily time series data frame containing Date (date object), tmax_C (deg C), tmin_C (deg C), srad (MJ m^-2 day^-1). Optionally contains RHmax (percent), RHmin (percent), vp (kPa), and wind (m/s).
 #' @param elev Elevation of the site (m).
 #' @param lat Latitude of the site (degrees).
 #' @param wind (optional) An estimated value for daily average wind speeds (m/s). Use if input data frame does not contain daily wind speed values.
