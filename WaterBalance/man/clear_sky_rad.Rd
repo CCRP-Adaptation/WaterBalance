@@ -7,12 +7,12 @@
 clear_sky_rad(doy, lat, elev)
 }
 \arguments{
-\item{doy}{Day-of-year (Julian date).}
+\item{doy}{Day-of-year (Julian date)}
 
-\item{lat}{Latitude (degrees).}
+\item{lat}{Latitude (degrees)}
 
-\item{elev}{Elevation (m).}
+\item{elev}{Elevation (m)}
 }
 \description{
-Calculates incoming clear-sky radiation (MJ m^-2 day^-1) based on day-of-year, latitude, and elevation.
+Calculates incoming clear-sky radiation (MJ m^-2 day^-1) based on day-of-year, latitude, and elevation
 }
