@@ -1,12 +1,13 @@
 Package: WaterBalance
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Functions for Calculating Water Balance Variables
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Amanda Carlson
+Maintainer: amanda_carlson@partner.nps.gov
+Description: A set of functions for calculating variables in Dave Thoma's water balance spreadsheet model. 
+    Uses daily or monthly precipitation and temperature data to calculate ecological water supply and demand, using potential 
+    evapotranspiration estimations. 
+License:
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.0
