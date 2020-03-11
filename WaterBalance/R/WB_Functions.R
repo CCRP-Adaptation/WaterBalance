@@ -89,6 +89,7 @@ get_melt = function(snowpack, snow, freeze, p.0=NULL){
 #' @param slope Slope of the site (in degrees).
 #' @param aspect Aspect of the site (in degrees).
 #' @param lat Latitude of the site (in degrees).
+#' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
 #' @param shade.coeff (optional) A shade coefficient from 0-1. Default is 1.
 #' @export
 #' modify_PET()
