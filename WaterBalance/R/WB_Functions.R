@@ -101,7 +101,7 @@ modify_PET = function(pet, slope, aspect, lat, freeze, shade.coeff=NULL){
   aspect.rad = (f.aspect/180)*pi
   heat.load = 0.339+0.808*cos(lat.rad)*cos(slope.rad) - 0.196*sin(lat.rad)*sin(slope.rad) - 0.482*cos(aspect.rad)*sin(slope.rad)
   sc = ifelse(!is.null(shade.coeff), shade.coeff, 1)
-  freeze = ifelse(freeze = 0,0,1)
+  freeze = ifelse(freeze == 0,0,1)
   PET.Lutz = pet*heat.load*sc*freeze
   return(PET.Lutz)
 }
