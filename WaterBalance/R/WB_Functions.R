@@ -94,14 +94,15 @@ get_melt = function(snowpack, snow, freeze, p.0=NULL){
 #' @export
 #' modify_PET()
 
-modify_PET = function(pet, slope, aspect, lat, shade.coeff=NULL){
+modify_PET = function(pet, slope, aspect, lat, freeze, shade.coeff=NULL){
   f.aspect = abs(180 - abs(aspect - 225))
   lat.rad = ifelse(lat > 66.7, (66.7/180)*pi, (lat/180)*pi)
   slope.rad = (slope/180)*pi
   aspect.rad = (f.aspect/180)*pi
   heat.load = 0.339+0.808*cos(lat.rad)*cos(slope.rad) - 0.196*sin(lat.rad)*sin(slope.rad) - 0.482*cos(aspect.rad)*sin(slope.rad)
   sc = ifelse(!is.null(shade.coeff), shade.coeff, 1)
-  PET.Lutz = pet*heat.load*sc
+  freeze = ifelse(freeze == 0,0,1)
+  PET.Lutz = pet*heat.load*sc*freeze
   return(PET.Lutz)
 }
 
