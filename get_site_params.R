@@ -50,11 +50,11 @@ county$NAME[, drop = TRUE] # See console for the name of the county where the pa
 ######### STOP HERE AND DOWNLOAD DATA FROM https://datagateway.nrcs.usda.gov/GDGOrder.aspx #################################################
 
 dem <- raster('./RSS/PETE/elevation/ned30m37077.tif') # DEM 30 m downloaded from USDA NRCS
-soil <- raster('./RSS/PETE/MapunitRaster_10m1.tif') # raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
+soil <- raster('./RSS/PETE/MapunitRaster_10m2.tif') # raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
 
 # Project spatial data
 
-dem_projection <- st_crs(dem) # get projection from DEM
+dem_projection <- crs(dem) # raster 
 
 park_proj <- st_transform(park, projection)
 centroid_proj <- st_transform(centroid, projection)
@@ -65,23 +65,33 @@ maca.poly <- rasterToPolygons(maca_cell)
 maca.poly <- spTransform(maca.poly, soil_projection) # project MACA cell to projection of soil layer
 soil_crop <- crop(soil, maca.sp) # crop soil raster to maca cell
 
-soil_proj <- projectRaster(soil_crop, crs = dem_projection[[2]]) # project cropped soil layer to DEM projection
+soil_proj <- projectRaster(soil_crop, crs = dem_projection) # project cropped soil layer to DEM projection
+maca_proj <- spTransform(maca.poly, dem_projection)
+
+###############################################################################################
+
+# Create slope and aspect rasters
+
+slope <- terrain(dem, opt = "slope", unit = "degrees", neighbors = 4) # 4 is better for "smooth" surfaces; 8 is better for rough. See https://www.rdocumentation.org/packages/raster/versions/3.1-5/topics/terrain
+aspect <- terrain(dem, opt = "aspect", unit = "degrees")
+
+# Create random points
+
+points <- spsample(maca_proj, n = 10, type = "random")
+
+# Create rasterstack to extract values to points
+
+ext <- extent(maca_proj)
+
+slope_crop <- crop(slope, ext)
+aspect_crop <- crop(aspect, ext)
+
+############
+##  STUCK: CANNOT FIND WATER HOLDING CAPACITY DATA IN EXPORTED RASTER. START HERE MONDAY 5/7/2020
+
+soil@data@attributes[[1]] # empty list
 
 
-
-
-
-### JUNK #########
-
- <- extent(maca_cell)
-projectExtent(ext, crs = crs(soil))
-
-state <- st_transform(state, crs = soil_projection) # reproject state into soil crs to facilitate cropping
-
-
-test <- gdalwarp(srcfile = soil_crop, dstfile = "soil_proj.tif", t_srs = projection)
-
-soil_proj <- projectRaster(soil_crop, crs = projection[[2]]) # project soil raster to DEM crs
 
 
 
