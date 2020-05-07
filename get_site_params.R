@@ -7,23 +7,36 @@ rm(list=ls())
 library(sf)
 library(raster)
 library(dplyr)
+library(rgdal)
+library(gdalUtils)
 library(soilDB)
 
 ############################################################# USER INPUTS ##################################################################### 
 
 setwd("C:/Users/adillon/Documents/ArcGIS") # Set working directory to where spatial files are located
 
-# load shapefiles for NPS park boundaries, US Counties, MACA grid, DEM
+# load shapefiles for NPS park boundaries, US Counties, 
 
 nps_boundary <- st_read('./nps_boundary/nps_boundary.shp')
 nps_boundary_centroids <- st_read('./nps_boundary_centroids/nps_boundary_centroids.shp')
 US_Counties <- st_read('./US_Counties/tl_2016_us_county.shp')
-MACA_grid <- st_read('./Climate_grid/MACA_grid.shp')
+State_Shapefile <- st_read('./State_Shapefile/Contig_US_Albers.shp')
 
 # select park
 
 park <- filter(nps_boundary, UNIT_CODE == "PETE")
 centroid <- filter(nps_boundary_centroids, UNIT_CODE == "PETE")
+state <- filter(State_Shapefile, STATE_NAME == "Virginia")
+
+# MACA grid
+
+centroid.coords <- cbind(centroid$Lon, centroid$Lat) # extract lat/long from centroid
+centroid.sp <- SpatialPoints(centroid.coords) # convert centroid into SpatialPoints object
+maca <- raster('tdn_90d.nc') # import MACA gridded data - this is to obtain MACA grid outline not information within
+
+cell <- cellFromXY(maca, centroid.sp) # find grid cell park centroid lies within
+maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
+
 
 # get county
 
@@ -38,4 +51,37 @@ county$NAME[, drop = TRUE] # See console for the name of the county where the pa
 
 dem <- raster('./RSS/PETE/elevation/ned30m37077.tif') # DEM 30 m downloaded from USDA NRCS
 soil <- raster('./RSS/PETE/MapunitRaster_10m1.tif') # raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
+
+# Project spatial data
+
+dem_projection <- st_crs(dem) # get projection from DEM
+
+park_proj <- st_transform(park, projection)
+centroid_proj <- st_transform(centroid, projection)
+
+# crop soil and MACA grid; reproject soil to DEM projection
+
+maca.poly <- rasterToPolygons(maca_cell)
+maca.poly <- spTransform(maca.poly, soil_projection) # project MACA cell to projection of soil layer
+soil_crop <- crop(soil, maca.sp) # crop soil raster to maca cell
+
+soil_proj <- projectRaster(soil_crop, crs = dem_projection[[2]]) # project cropped soil layer to DEM projection
+
+
+
+
+
+### JUNK #########
+
+ <- extent(maca_cell)
+projectExtent(ext, crs = crs(soil))
+
+state <- st_transform(state, crs = soil_projection) # reproject state into soil crs to facilitate cropping
+
+
+test <- gdalwarp(srcfile = soil_crop, dstfile = "soil_proj.tif", t_srs = projection)
+
+soil_proj <- projectRaster(soil_crop, crs = projection[[2]]) # project soil raster to DEM crs
+
+
 
