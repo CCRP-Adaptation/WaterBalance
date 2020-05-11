@@ -8,8 +8,8 @@ library(sf)
 library(raster)
 library(dplyr)
 library(rgdal)
-library(gdalUtils)
-library(soilDB)
+library(ggplot2)
+#library(soilDB)
 
 ############################################################# USER INPUTS ##################################################################### 
 
@@ -50,48 +50,68 @@ county$NAME[, drop = TRUE] # See console for the name of the county where the pa
 ######### STOP HERE AND DOWNLOAD DATA FROM https://datagateway.nrcs.usda.gov/GDGOrder.aspx #################################################
 
 dem <- raster('./RSS/PETE/elevation/ned30m37077.tif') # DEM 30 m downloaded from USDA NRCS
-soil <- raster('./RSS/PETE/MapunitRaster_10m2.tif') # raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
+soil <- raster('./RSS/PETE/soil') # raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
 
 # Project spatial data
 
 dem_projection <- crs(dem) # raster 
+#soil_projection <- crs(soil) # This may come in handy later if we are able to import gridded soils directly into R
 
-park_proj <- st_transform(park, projection)
-centroid_proj <- st_transform(centroid, projection)
+park_proj <- st_transform(park, dem_projection)
+centroid_proj <- st_transform(centroid, dem_projection)
 
 # crop soil and MACA grid; reproject soil to DEM projection
 
 maca.poly <- rasterToPolygons(maca_cell)
-maca.poly <- spTransform(maca.poly, soil_projection) # project MACA cell to projection of soil layer
-soil_crop <- crop(soil, maca.sp) # crop soil raster to maca cell
+#maca.poly <- spTransform(maca.poly, soil_projection) # project MACA cell to projection of soil layer - not necessary now but will need to crop soil layer later to cut processing time for reprojection
+#soil_crop <- crop(soil, maca.poly) # crop soil raster to maca cell - same comment as above
 
-soil_proj <- projectRaster(soil_crop, crs = dem_projection) # project cropped soil layer to DEM projection
+soil_proj <- projectRaster(soil, crs = dem_projection) # project cropped soil layer to DEM projection
 maca_proj <- spTransform(maca.poly, dem_projection)
 
-###############################################################################################
+
+#####   SLOPE, ASPECT AND RANDOM POINTS   ##########################################################################################
 
 # Create slope and aspect rasters
 
 slope <- terrain(dem, opt = "slope", unit = "degrees", neighbors = 4) # 4 is better for "smooth" surfaces; 8 is better for rough. See https://www.rdocumentation.org/packages/raster/versions/3.1-5/topics/terrain
 aspect <- terrain(dem, opt = "aspect", unit = "degrees")
 
+# Crop to projected MACA cell 
+
+dem_crop <- crop(dem, maca_proj)
+slope_crop <- crop(slope, maca_proj)
+aspect_crop <- crop(aspect, maca_proj)
+
 # Create random points
 
 points <- spsample(maca_proj, n = 10, type = "random")
 
-# Create rasterstack to extract values to points
 
-ext <- extent(maca_proj)
+####    PLOT TO CHECK SPATIAL ALIGNMENT   ############################################################################################
 
-slope_crop <- crop(slope, ext)
-aspect_crop <- crop(aspect, ext)
+soil_plot <- tm_shape(soil_proj) + 
+  tm_raster(legend.show = FALSE) +
+  tm_shape(points) +             
+  tm_dots(size = 1)
+
+dem_plot <- tm_shape(dem_crop) + # because slope and aspect plot were created
+  tm_raster(legend.show = FALSE) + 
+  tm_shape(points) + 
+  tm_dots(size = 1)
+
+tmap_arrange(soil_plot, dem_plot) # make sure all points are within 
+
+# plot soil raster and DEM side-by-side to make sure points fall within boundaries of both. Because cropped soil layer was created in ArcGIS, 
+
 
 ############
 ##  STUCK: CANNOT FIND WATER HOLDING CAPACITY DATA IN EXPORTED RASTER. START HERE MONDAY 5/7/2020
 
-soil@data@attributes[[1]] # empty list
+soil@data@attributes[[1]]$AWS0999 # empty list
 
+soil@data@attributes[[1]]
 
-
+PETE@data@attributes[[1]]$AWS0_999
 
 
