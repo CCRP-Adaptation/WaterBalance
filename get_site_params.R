@@ -152,6 +152,8 @@ sites[,7] <- seq.int(nrow(sites))
 sites <- select(sites, 7,2,1,3:6) # reorder columns
 colnames(sites) <- c("SiteID", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC.Max")
 
+sites # check 
+
 write.csv(sites, file =  paste0(OutDir, site, "_site_characteristics.csv"), row.names = FALSE)
 
 
