@@ -11,7 +11,7 @@ library(rgdal)
 library(tmap)
 #library(soilDB)
 
-############################################################# USER INPUTS ##################################################################### 
+###########################   USER INPUTS ###################################################################################### 
 
 setwd("C:/Users/adillon/Documents/ArcGIS")# Set working directory to where spatial files are located
 
@@ -24,6 +24,7 @@ nps_boundary <- st_read('./nps_boundary/nps_boundary.shp')
 nps_boundary_centroids <- st_read('./nps_boundary_centroids/nps_boundary_centroids.shp')
 US_Counties <- st_read('./US_Counties/tl_2016_us_county.shp')
 State_Shapefile <- st_read('./State_Shapefile/Contig_US_Albers.shp')
+maca <- raster('tdn_90d.nc') # MACA grid
 
 # select park
 
@@ -31,15 +32,33 @@ park <- filter(nps_boundary, UNIT_CODE == "PETE")
 centroid <- filter(nps_boundary_centroids, UNIT_CODE == "PETE")
 state <- filter(State_Shapefile, STATE_NAME == "Virginia")
 
+#########################     END USER INPUTS   ##################################################################################
+
+# Check that spatial data looks OK so far. Precise rojection doesn't matter at this point but should be close. 
+
+state_and_park <- tm_shape(state) +
+  tm_borders() + 
+  tm_fill(col = "lightgrey") +
+  tm_shape(park) +
+  tm_borders() + 
+  tm_fill(col = "green")
+
+park_and_centroid <- tm_shape(park) + 
+  tm_borders() +
+  tm_fill(col = "lightgreen") + 
+  tm_shape(centroid) + 
+  tm_dots(size = 1, shape = 3)
+
+tmap_arrange(state_and_park, park_and_centroid)
+
 # MACA grid
 
 centroid.coords <- cbind(centroid$Lon, centroid$Lat) # extract lat/long from centroid
 centroid.sp <- SpatialPoints(centroid.coords) # convert centroid into SpatialPoints object
-maca <- raster('tdn_90d.nc') # import MACA gridded data - this is to obtain MACA grid outline not information within
+ # import MACA gridded data - this is to obtain MACA grid outline not information within
 
 cell <- cellFromXY(maca, centroid.sp) # find grid cell park centroid lies within
 maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
-
 
 # get county
 
@@ -67,8 +86,8 @@ soil@data@attributes[[1]] # check that RAT looks OK
 dem_projection <- crs(dem) # raster 
 #soil_projection <- crs(soil) # This may come in handy later if we are able to import gridded soils directly into R
 
-park_proj <- st_transform(park, dem_projection)
-centroid_proj <- st_transform(centroid, dem_projection)
+park_proj <- st_transform(park, dem_projection) # reproject park
+centroid_proj <- st_transform(centroid, dem_projection) # reproject centroid
 
 # MACA grid
 # When we can get soils data directly, crop soil grid to MACA cell and reproject to DEM
@@ -97,13 +116,15 @@ dem_crop <- crop(dem, maca_proj)
 slope_crop <- crop(slope, maca_proj)
 aspect_crop <- crop(aspect, maca_proj)
 
-# get 10 random points from soil raster and create SpatialPoints object
+head(soil_crop@data@attributes) # check to see that RAT followed through processing
 
-tail(soil_crop@data@attributes)
+# get 10 random points from soil raster and create SpatialPoints object
 points <- spsample(maca_proj, n = 10, type = "random")
 
 
 ####    PLOT TO CHECK SPATIAL ALIGNMENT   ############################################################################################
+
+# Make sure points look identical against all rasters, and that rasters are similar in size and orientation
 
 soil_plot <- tm_shape(soil_crop) + 
   tm_raster(legend.show = FALSE) +
@@ -129,13 +150,10 @@ tmap_arrange(soil_plot, dem_plot, slope_plot, aspect_plot) # make sure all point
 
 ####    EXTRACT DATA FROM POINTS ######################################################################################################
 
-is.factor(soil_crop) # should be TRUE
-#atts <- levels(soil_crop)[[1]] # list of attributes
-#levels(soil_crop) <- atts # assigns attributes to levels
-#soil_crop
 i <- extract(soil_crop, points) 
 pointSoil <- factorValues(soil_crop, i)
 
+# reproject points to lat/long so can eventually add to .csv
 
 latlong <- st_as_sf(points) # convert to sf object 
 latlong <- st_transform(latlong, crs = 4326) # project to lat/long
