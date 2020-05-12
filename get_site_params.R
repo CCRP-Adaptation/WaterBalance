@@ -106,12 +106,61 @@ tmap_arrange(soil_plot, dem_plot) # make sure all points are within
 
 
 ############
-##  STUCK: CANNOT FIND WATER HOLDING CAPACITY DATA IN EXPORTED RASTER. START HERE MONDAY 5/7/2020
+set.seed(0)
+r <- raster(nrow=10, ncol=10)
+values(r) <- runif(ncell(r)) * 10
+is.factor(r)
+#is.factor(soil) # yes soil is a factor
 
-soil@data@attributes[[1]]$AWS0999 # empty list
+r <- round(r)
+f <- as.factor(r)
+is.factor(f)
 
-soil@data@attributes[[1]]
+# add attribute
+x <- levels(f)[[1]] # 
+x
+x$code <- letters[10:20]
+levels(f) <- x
+levels(f)
+f
 
-PETE@data@attributes[[1]]$AWS0_999
+r <- raster(nrow=10, ncol=10)
+values(r) = 1
+r[51:100] = 2
+r[3:6, 1:5] = 3
+r <- ratify(r) # makes values into attributes
+
+rat <- levels(r)[[1]] # list of attributes
+atts <- levels(soil)[[1]]
+
+rat$landcover <- c('Pine', 'Oak', 'Meadow')
+rat$code <- c(12,25,30)
+levels(r) <- rat
+levels(soil) <- atts # assigns attributes to levels
+r
+soil
+
+# extract values for some cells
+i <- extract(r, c(1,2, 25,100))
+
+# get 10 random points from soil raster
+
+pts <- sampleRandom(soil, size = 10)
+
+j <- extract(soil, pts)
+# get the attribute values for these cells
+factorValues(r, i)
+factorValues(soil, pts)
 
 
+pointCells <- cellFromXY(soil_proj, points)
+
+levels(soil)
+
+lev <- levels(soil_proj)[[1]]
+aws <- as.factor(lev$AWS0_999)
+
+i <- extract(soil_proj, pointCells)
+
+factorValues(i, aws)
+lev.factor
