@@ -24,7 +24,7 @@ nps_boundary <- st_read('./nps_boundary/nps_boundary.shp')
 nps_boundary_centroids <- st_read('./nps_boundary_centroids/nps_boundary_centroids.shp')
 US_Counties <- st_read('./US_Counties/tl_2016_us_county.shp')
 State_Shapefile <- st_read('./State_Shapefile/Contig_US_Albers.shp')
-maca <- raster('tdn_90d.nc') # MACA grid
+maca <- raster('./Climate_grid/tdn_90d.nc') # MACA grid
 
 # select park
 
