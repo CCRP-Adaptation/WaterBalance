@@ -16,7 +16,7 @@ library(tmap)
 setwd("C:/Users/adillon/Documents/ArcGIS")# Set working directory to where spatial files are located
 
 site <- "PETE"
-OutDir <- "C:/Users/adillon/Documents/RSS/PETE/"
+OutDir <- "C:/Users/adillon/Documents/RSS/PETE/WB/"
 
 # load shapefiles for NPS park boundaries, US Counties, 
 
@@ -78,7 +78,7 @@ county$NAME[, drop = TRUE] # See console for the name of the county where the pa
 # NOTE: Soils raster cannot be reprojected in R because will lose data associated with RAT (Raster Attribute Table)
 
 dem <- raster('./RSS/PETE/elevation/ned30m37077.tif') # DEM 30 m downloaded from USDA NRCS
-soil <- raster('./RSS/PETE/soil_18N') # projected raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
+soil <- raster('./RSS/PETE/soils') # projected raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
 soil@data@attributes[[1]] # check that RAT looks OK
 
 # Project spatial data
@@ -166,9 +166,13 @@ sites[,4] <- extract(aspect_crop, points)
 sites[,5] <- extract(slope_crop, points)
 sites[,6] <- pointSoil$AWS0_999
 sites[,7] <- seq.int(nrow(sites))
+sites[,8] <- 5 # default value for wind
+sites[,9] <- 0 # default value for snowpack
+sites[,10] <- 0 # default value for Soil.Init
+sites[,11] <- 1 # default value for shade coefficient
   
-sites <- select(sites, 7,2,1,3:6) # reorder columns
-colnames(sites) <- c("SiteID", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC.Max")
+sites <- select(sites, 7,2,1,3:6, 8:11) # reorder columns
+colnames(sites) <- c("SiteID", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC.Max", "Wind", "Snowpack", "Soil.Init", "Shade.Coeff")
 
 sites # check 
 
