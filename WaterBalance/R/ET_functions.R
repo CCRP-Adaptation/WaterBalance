@@ -115,7 +115,7 @@ clear_sky_rad = function(doy, lat, elev){
   declin = 0.409*sin(((2*pi)/365)*doy) 
   lat.rad = (pi/180)*lat
   sunset.ang = acos(-tan(lat.rad)*tan(declin)) 
-  R.a = ((24*60)/pi)*0.0820*d.r*(sunset.ang*sin(lat.rad)*sin(declin) + cos(lat.rad)*cos(declin)*sin(sunset.ang)) # cell AK9
+  R.a = ((24*60)/pi)*0.0820*d.r*(sunset.ang*sin(lat.rad)*sin(declin) + cos(lat.rad)*cos(declin)*sin(sunset.ang)) 
   R.so = (0.75 + 2e-5*elev)*R.a
   return(R.so)
 }
@@ -150,42 +150,17 @@ outgoing_rad = function(tmax, tmin, R.s, e.a, R.so){
 #' Oudin PET
 #' Equation 3 in Oudin et al. 2010
 #' 
-#' @param x A daily time series data frame containing Date (date object), tmax_C (deg C), tmin_C (deg C), srad (MJ m^-2 day^-1)
-#' @param lat Latitude of the site (degrees)
+#' @param x A daily time series data frame containing tmean_C (deg C)
+#' @param R.a. Extraterrestrial solar radiation
+#' @param snowpack A time series vector of snowpack accumulation values.
 #' 
-#' ET_Oudin = function(x){
-  #Inputs
-  tmax = x$tmax_C
-  tmin = x$tmin_C
-  tmean = (tmax + tmin)/2
-  doy = as.numeric(strftime(x$Date, "%j"))
-  rh.max = x$RHmax
-  rh.min = x$RHmin
-  vp = x$vp
-  R.s = x$srad
-  
-  #Saturation vapor pressure
-  e.tmax = get_svp(tmax)
-  e.tmin = get_svp(tmin)
-  e.s = (e.tmax + e.tmin)/2
-  
-  #Actual vapor pressure
-  if(is.null(vp) == TRUE){
-    if(is.null(rh.max) == TRUE){
-      e.a = e.tmin
-    } else {
-      e.a = actual_vp(rh.max, rh.min)
-    }
-  } else {
-    e.a = vp
-  }
-
-  #Solar angle and radiation calculations
-  R.ns = (1 - 0.23)*R.s
-  R.so = clear_sky_rad(doy, lat, elev)
-  R.nl = outgoing_rad(tmax, tmin, R.s, e.a, R.so)
-  R.n = R.ns - R.nl
-  R.ng = 0.408*R.n
+#' ET_Oudin = function(x, R.a., snowpack){
+  top = R.a. * (x$tmean_C + 5) * 0.408
+  bottom = 100
+  PET = top/bottom
+  et.oudin = ifelse(snowpack > 2,0,ifelse(tmean_C > -5, PET, 0))
+  return(et.oudin)
+}
 
 
 
