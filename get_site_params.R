@@ -13,10 +13,10 @@ library(tmap)
 
 ###########################   USER INPUTS ###################################################################################### 
 
-setwd("C:/Users/adillon/Documents/ArcGIS")# Set working directory to where spatial files are located
+setwd("C:/Users/msears/Documents/GIS")# Set working directory to where spatial files are located
 
-site <- "PETE"
-OutDir <- "C:/Users/adillon/Documents/RSS/PETE/WB/"
+site <- "MACA"
+OutDir <- "C:/Users/msears/Documents/RSS/Mammoth_Cave/WB/"
 
 # load shapefiles for NPS park boundaries, US Counties, 
 
@@ -28,9 +28,9 @@ maca <- raster('./Climate_grid/tdn_90d.nc') # MACA grid
 
 # select park
 
-park <- filter(nps_boundary, UNIT_CODE == "PETE")
-centroid <- filter(nps_boundary_centroids, UNIT_CODE == "PETE")
-state <- filter(State_Shapefile, STATE_NAME == "Virginia")
+park <- filter(nps_boundary, UNIT_CODE == "MACA")
+centroid <- filter(nps_boundary_centroids, UNIT_CODE == "MACA")
+state <- filter(State_Shapefile, STATE_NAME == "Kentucky")
 
 #########################     END USER INPUTS   ##################################################################################
 
