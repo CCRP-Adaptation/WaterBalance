@@ -77,8 +77,8 @@ county$NAME[, drop = TRUE] # See console for the name of the county where the pa
 # Save new raster into park folder (NOT file geodatabase)
 # NOTE: Soils raster cannot be reprojected in R because will lose data associated with RAT (Raster Attribute Table)
 
-dem <- raster('./RSS/PETE/elevation/ned30m37077.tif') # DEM 30 m downloaded from USDA NRCS
-soil <- raster('./RSS/PETE/soils') # projected raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
+dem <- raster('./RSS/MACA/Elevation/ned30m37086.tif') # DEM 30 m downloaded from USDA NRCS
+soil <- raster('./RSS/MACA/soils') # projected raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
 soil@data@attributes[[1]] # check that RAT looks OK
 
 # Project spatial data
