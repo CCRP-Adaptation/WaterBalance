@@ -120,6 +120,12 @@ clear_sky_rad = function(doy, lat, elev){
   return(R.so)
 }
 
+#' Calculates extraterrestrial Solar Radiation (MJ m^-2 day^-1) based on day-of-year and latitude
+#' @param doy Day-of-year (Julian date)
+#' @param lat Latitude (degrees)
+#' @export
+#' extraterrestrial_solar_rad()
+
 extraterrestrial_solar_rad = function(doy, lat){
   d.r = 1 + 0.033*cos(((2*pi)/365)*doy) # cell AG9
   declin = 0.409*sin(((2*pi)/365)*doy) # cell AH9
@@ -147,18 +153,30 @@ outgoing_rad = function(tmax, tmin, R.s, e.a, R.so){
 
 ################################ ET Calculation Methods ##########################################
 
-#' Oudin PET
+#' Oudin PET with radiation calculated from latitude and day-of-year
 #' Equation 3 in Oudin et al. 2010
 #' 
 #' @param x A daily time series data frame containing tmean_C (deg C)
 #' @param R.a. Extraterrestrial solar radiation
-#' @param snowpack A time series vector of snowpack accumulation values.
+#' @param snowpack A time series vector of snowpack accumulation values. ### ACTUALLY THIS IS SNOW WATER EQUIVALENT, MAYBE NOT SNOWPACK. LOOK INTO SNOW WATER EQUIVALENT RECONCILIATION NEXT WEEK (WRITTEN 6/17/2020)
 #' 
-#' ET_Oudin = function(x, R.a., snowpack){
+ET_Oudin = function(x, R.a., snowpack){ 
   top = R.a. * (x$tmean_C + 5) * 0.408
   bottom = 100
   PET = top/bottom
-  et.oudin = ifelse(snowpack > 2,0,ifelse(tmean_C > -5, PET, 0))
+  et.oudin = ifelse(snowpack > 2,0, ifelse(tmean_C > -5, PET, 0))
+  return(et.oudin)
+}
+
+#' Oudin PET with radiation obtained from DayMET
+#' @param x A daily time series data frame containing Date (date object), tmean_C, srad (MJ m^-2 day^-1), and daylength (hours)
+#' @param snowpack A time series vector of snowpack accumulation values.
+#' 
+ET_Oudin_daymet = function(x){
+  top = x$srad * x$daylength/1000000 * (tmean_C + 5) * 0.408
+  bottom = 100
+  PET = top/bottom
+  et.oudin = ifelse(snowpack > 2, 0, ifelse(tmean_C > -5, PET, 0))
   return(et.oudin)
 }
 
