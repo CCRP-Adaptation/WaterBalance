@@ -146,7 +146,7 @@ aspect_plot <- tm_shape(aspect_crop) +
   tm_shape(points) + 
   tm_dots(size = 1)
 
-tmap_arrange(soil_plot, dem_plot, slope_plot, aspect_plot) # make sure all points are within boundaries and plots look good
+tmap_arrange(soil_plot, dem_plot, slope_plot, aspect_plot) # make sure all points are within boundaries and plots look good. ignore warning message related to tmap_options
 
 ####    EXTRACT DATA FROM POINTS ######################################################################################################
 
