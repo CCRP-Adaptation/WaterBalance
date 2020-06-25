@@ -15,7 +15,7 @@ library(tmap)
 
 setwd("C:/Users/adillon/Documents/ArcGIS") # Set working directory to where spatial files are located
 
-grid <- raster('C:/Users/adillon/Documents/ArcGIS/Climate_grid/tdn_90d.nc') # gridmet/MACA grid
+grid <- raster('./Climate_grid/tdn_90d.nc') # gridmet/MACA grid
 
 latlon <- CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')
 
@@ -51,43 +51,6 @@ cell_and_city <- tm_shape(grid_cell) +
 tmap_arrange(state_and_cell, cell_and_city)
 
 
-#########################     END USER INPUTS   ##################################################################################
-
-# Check that spatial data looks OK so far. Precise projection doesn't matter at this point but should be close. 
-
-#state_and_park <- tm_shape(state) +
-  #tm_borders() + 
-  #tm_fill(col = "lightgrey") +
-  #tm_shape(park) +
-  #tm_borders() + 
-  tm_fill(col = "green")
-
-park_and_centroid <- tm_shape(park) + 
-  tm_borders() +
-  tm_fill(col = "lightgreen") + 
-  tm_shape(centroid) + 
-  tm_dots(size = 1, shape = 3)
-
-tmap_arrange(state_and_park, park_and_centroid)
-
-# MACA grid
-
-centroid.coords <- cbind(centroid$Lon, centroid$Lat) # extract lat/long from centroid
-centroid.sp <- SpatialPoints(centroid.coords) # convert centroid into SpatialPoints object
- # import MACA gridded data - this is to obtain MACA grid outline not information within
-
-cell <- cellFromXY(maca, centroid.sp) # find grid cell park centroid lies within
-maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
-
-# get county
-
-county <- US_Counties %>%
-  filter(st_intersects(.,centroid, sparse = FALSE))
-
-county$NAME[, drop = TRUE] # See console for the name of the county where the park centroid resides. 
-                           # Input this name into https://datagateway.nrcs.usda.gov/GDGOrder.aspx to get DEM and gridded soil data
-
-
 ######### STOP HERE AND DOWNLOAD DATA FROM https://datagateway.nrcs.usda.gov/GDGOrder.aspx #################################################
 
 # First, import DEM and soils layers into ArcGIS.
@@ -96,8 +59,8 @@ county$NAME[, drop = TRUE] # See console for the name of the county where the pa
 # Save new raster into park folder (NOT file geodatabase)
 # NOTE: Soils raster cannot be reprojected in R because will lose data associated with RAT (Raster Attribute Table)
 
-dem <- raster('./RSS/MACA/Elevation/ned30m37086.tif') # DEM 30 m downloaded from USDA NRCS
-soil <- raster('./RSS/MACA/soils') # projected raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
+dem <- raster('./Water_Balance_Model_Update/IthacaNY/elevation_NED30M_ny109_3829103_01/elevation/ned30m42076.tif') # DEM 30 m downloaded from USDA NRCS
+soil <- raster('./Water_Balance_Model_Update/soils_Ithaca') # projected raster file exported from ArcGIS (MapunitRaster_10m) with spatial join to valu1 table
 soil@data@attributes[[1]] # check that RAT looks OK
 
 # Project spatial data
@@ -105,17 +68,17 @@ soil@data@attributes[[1]] # check that RAT looks OK
 dem_projection <- crs(dem) # raster 
 #soil_projection <- crs(soil) # This may come in handy later if we are able to import gridded soils directly into R
 
-park_proj <- st_transform(park, dem_projection) # reproject park
-centroid_proj <- st_transform(centroid, dem_projection) # reproject centroid
+fc_proj <- st_transform(fc, dem_projection) # reproject fc
+#centroid_proj <- st_transform(centroid, dem_projection) # reproject centroid
 
 # MACA grid
 # When we can get soils data directly, crop soil grid to MACA cell and reproject to DEM
 
 maca.poly <- rasterToPolygons(maca_cell) # Create MACA polygon
-#maca.poly <- spTransform(maca.poly, soil_projection) # project MACA cell to projection of soil layer - not necessary now but will need to crop soil layer later to cut processing time for reprojection
-#soil_crop <- crop(soil, maca.poly) # crop soil raster to maca cell - same comment as above
+maca.poly <- spTransform(maca.poly, soil_projection) # project MACA cell to projection of soil layer - not necessary now but will need to crop soil layer later to cut processing time for reprojection
+soil_crop <- crop(soil, maca.poly) # crop soil raster to maca cell - same comment as above
 
-#soil_proj <- projectRaster(soil, crs = dem_projection) # project cropped soil layer to DEM projection
+soil_proj <- projectRaster(soil, crs = dem_projection) # project cropped soil layer to DEM projection
 maca_proj <- spTransform(maca.poly, dem_projection) # reproject MACA grid 
 
 
@@ -137,8 +100,7 @@ aspect_crop <- crop(aspect, maca_proj)
 
 head(soil_crop@data@attributes) # check to see that RAT followed through processing
 
-# get 10 random points from soil raster and create SpatialPoints object
-points <- spsample(maca_proj, n = 10, type = "random")
+
 
 
 ####    PLOT TO CHECK SPATIAL ALIGNMENT   ############################################################################################
