@@ -112,7 +112,7 @@ psyc_constant = function(elev){
 
 clear_sky_rad = function(doy, lat, elev){
   d.r = 1 + 0.033*cos(((2*pi)/365)*doy)
-  declin = 0.409*sin(((2*pi)/365)*doy)
+  declin = 0.409*sin((((2*pi)/365)*doy)-1.39)
   lat.rad = (pi/180)*lat
   sunset.ang = acos(-tan(lat.rad)*tan(declin))
   R.a = ((24*60)/pi)*0.0820*d.r*(sunset.ang*sin(lat.rad)*sin(declin) + cos(lat.rad)*cos(declin)*sin(sunset.ang))
