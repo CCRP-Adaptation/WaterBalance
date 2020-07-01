@@ -131,6 +131,8 @@ pointSoil <- factorValues(soil_crop, i)
 latlong <- st_as_sf(foco_proj) # convert to sf object 
 latlong <- st_transform(latlong, crs = 4326) # project to lat/long
 
+ # The Jennings coefficient = temperature where precip is half snow, half rain
+
 
 sites <- as.data.frame(st_coordinates(latlong)) # begin new dataframe for sites
 
@@ -143,13 +145,27 @@ sites[,8] <- 5 # default value for wind
 sites[,9] <- 0 # default value for snowpack
 sites[,10] <- 0 # default value for Soil.Init
 sites[,11] <- 1 # default value for shade coefficient
-  
-sites <- select(sites, 7,2,1,3:6, 8:11) # reorder columns
-colnames(sites) <- c("SiteID", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC.Max", "Wind", "Snowpack", "Soil.Init", "Shade.Coeff")
 
-sites # check 
+# Get Jennings coefficient
+jennings.raster <- raster('C:/Users/adillon/Documents/Repos/WaterBalance/WaterBalance/merged_jennings2.tif')
+projection <- CRS("+init=epsg:4326") 
 
-write.csv(sites, file =  paste0(OutDir, site, "_site_characteristics.csv"), row.names = FALSE)
+coords = cbind(sites$X, sites$Y)
+sp <- SpatialPoints(coords, proj4string = projection)
+jennings.Coeff = extract(jennings.raster, sp)
+
+sites[,12] <- jennings.Coeff
+
+
+
+sites <- select(sites, 7,2,1,3:6, 8:12) # reorder columns
+colnames(sites) <- c("SiteID", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC.Max", "Wind", "Snowpack", "Soil.Init", "Shade.Coeff", "Jennings.Coeff")
+
+sites
+
+write.csv(sites, file = "C:/Users/adillon/Documents/Water_Balance_Update/Example_sites.csv", row.names = FALSE)
+
+
 
 
 
