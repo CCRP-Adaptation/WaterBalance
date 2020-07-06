@@ -35,14 +35,16 @@ extraterrestrial_solar_rad = function(doy, lat){ #radRa - column AK
 #' @param snowpack A time series vector of snowpack accumulation values. ### ACTUALLY THIS IS SNOW WATER EQUIVALENT, MAYBE NOT SNOWPACK. LOOK INTO SNOW WATER EQUIVALENT RECONCILIATION NEXT WEEK (WRITTEN 6/17/2020)
 
 ET_Oudin = function(x, R.a., snowpack){ 
-  top = R.a. * (x$tmean_C + 5) * 0.408
-  bottom = 100
-  PET = top/bottom
-  et.oudin = ifelse(snowpack > 2,0, ifelse(x$tmean_C > -5, PET, 0))
+  et.oudin = c()
+  for(i in 1:nrow(x)){
+    top = R.a.[i] * (x$tmean_C[i] + 5) * 0.408
+    bottom = 100
+    PET = top/bottom
+    et.oudin[i] = ifelse(snowpack[i] > 2,0, ifelse(x$tmean_C[i] > -5, PET, 0))} 
   return(et.oudin)
 }
 
-ET_Oudin_daymet = function(x){
+ET_Oudin_daymet = function(x, snowpack){
   top = x$srad * x$daylength/1000000 * (tmean_C + 5) * 0.408
   bottom = 100
   PET = top/bottom
