@@ -3,7 +3,7 @@ Type: Package
 Title: Functions for Calculating Water Balance Variables
 Version: 0.1.0
 Author: Amanda Carlson
-Maintainer: amanda_carlson@partner.nps.gov
+Maintainer: anne_dillon@nps.gov
 Description: A set of functions for calculating variables in Dave Thoma's water balance spreadsheet model. 
     Uses daily or monthly precipitation and temperature data to calculate ecological water supply and demand, using potential 
     evapotranspiration estimations. 
