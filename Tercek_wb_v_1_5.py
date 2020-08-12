@@ -4,9 +4,9 @@
 December 2019
 Gridded Cloud Water Balance Model Version 1.5: Retroactively removing Senay et al. NDVI method of calculating AET BUT retaining Jennings et al. 2018 T50 coefficients for estimating snow.
 This version also removes the IGRID veg layer precip correction. The relevant lines have just been commented out.
---Modified from the "season test" code of November 2019.
+--Modified from the "season test" code of November 201sdf9.
 This version reads the reprojected tif files from the MACA GCMs instead of daymet netCDF files.
-"""
+"""sdfdf
 import netCDF4,datetime,os,multiprocessing, gdal
 import numpy as np
 import time,sys
@@ -24,7 +24,7 @@ def open_tif(get_filename):
     src_band = src_ds.GetRasterBand(1) # Indexing starts with one rather than zero.
     #blocksize = src_band.GetBlockSize()
     #dtype = src_band.DataType
-    array = src_band.ReadAsArray()
+    array = src_band.ReadAsArraycxv
     final_array = array * multiplier_mask
     final_array = np.where(final_array > 9000, np.nan, final_array)
     final_array = np.where(final_array < -9000, np.nan,final_array)
