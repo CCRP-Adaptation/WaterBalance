@@ -1,10 +1,8 @@
 # WaterBalance
 R package for implementing Dave Thoma's water balance spreadsheet model
 
-# WaterBalance
-R package for implementing Dave Thoma's water balance spreadsheet model
 
-TO REINSTALL WATERBALANCE PACKAGE AFTER R IS UPDATED USING THE COPY-PASTE METHOD
+#TO REINSTALL WATERBALANCE PACKAGE AFTER R IS UPDATED USING THE COPY-PASTE METHOD
 
 * These instructions pertain to R updates in which the WaterBalance package is copied from 
 the previous version's win-library folder and pasted into the current version's win-library folder.
