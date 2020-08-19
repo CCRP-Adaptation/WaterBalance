@@ -11,7 +11,7 @@ If the WaterBalance package does not work after R is updated, the user may need 
 
 1. In R 4.0.x, the "Maintainer" field in the DESCRIPTION must be formatted as follows:
 
-Annie Kellner Dillon <anne_dillon@nps.gov>
+Annie Kellner Dillon ```<anne_dillon@nps.gov>```
 
 2. The WaterBalance package may need to be rebuilt. To do this, follow these steps:
 
