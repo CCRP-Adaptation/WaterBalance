@@ -25,6 +25,7 @@ c. Enter the following code into the Terminal: R CMD build WaterBalance
 d. Open the console (or the Installing_WB_package.R script)
 
 e. Type or execute the following code: 
-
+```
 library("devtools")
 install("WaterBalance")
+```
