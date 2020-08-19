@@ -18,9 +18,9 @@ If the WaterBalance package does not work after R is updated, the user *may* nee
 a. Open the R terminal.
 
 b. Change directory to the win-library associated with the current R version. 
-The "change directory" command is cd.
+The "change directory" command is ```cd```.
 
-c. Enter the following code into the Terminal: R CMD build WaterBalance
+c. Enter the following code into the Terminal: ```R CMD build WaterBalance```
 
 d. Open the console (or the Installing_WB_package.R script)
 
