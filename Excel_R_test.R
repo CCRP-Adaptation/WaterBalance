@@ -31,3 +31,7 @@ tt <- ET_Oudin_daymet_Ra(daymet, snowpack)
 
 write.csv(tt, file = "ET_Oudin_daymet_Ra.csv")
 
+# --- TEST: Jennings coefficient ------------------------------------------------------------------------ #
+
+
+

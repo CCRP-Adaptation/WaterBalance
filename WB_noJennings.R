@@ -7,24 +7,20 @@ library(ggplot2)
 library(plyr)
 library(lubridate)
 library(dplyr)
-library(raster)
 
 ############################################################# USER INPUTS ##################################################################### 
 
 #Formatted input data as a daily time series. Needs to include the following columns: Date, ppt_mm, tmax_C, tmin_C, and tmean_C (temp.'s in deg. Celsius)
-#setwd("C:/Users/adillon/Documents/RSS/CONG/MACA/Figs MACA")
-load("C:/Users/adillon/Documents/RSS/WICA/WICA_Final_Environment.RData")
-load('C:/Users/adillon/Documents/RSS/WICA/WICA_init_parsed.RData')
+#setwd("C:/Users/msears/Documents/RSS/Mammoth_Cave/MACA/Figs MACA/Warm Wet_Hot Dry/")
+load("C:/Users/adillon/Documents/RSS/WICA/WICA_Final_Environment.RData") # Load final environment
+PARK<-"WICA"
 #rm(list=setdiff(ls(), c("ALL_HIST","ALL_FUTURE","PARK","CF_GCM")))
-
-jennings.raster <- raster('C:/Users/adillon/Documents/Repos/WaterBalance/merged_jennings2.tif') # Jennings coefficient layer
-projection <- CRS("+init=epsg:4326") # Lat/Long projection for spatial data
 
 #Site characteristics 
 Sites = read.csv("C:/Users/adillon/Documents/RSS/WICA/WICA_site_parameters_jennings.csv") #CSV file containing properties for all sites
 Sites <- Sites[-c(7:10),] # remove NAs
 n<-nrow(Sites)
-
+n<-nrow(Sites)
 #Threshold temperature (deg C) for growing degree-days calculation
 T.Base = 0 
 
@@ -34,28 +30,24 @@ Method = "Hamon"  #Hamon is default method for daily PRISM and MACA data (contai
 #Date format
 DateFormat = "%m/%d/%Y"
 
-#Out
+#Output directory
+#OutDir = "C:/Users/msears/Documents/RSS/Mammoth_Cave/WB/"
+
 
 #Select GCMs - Include RCP
+
 unique(ALL_FUTURE$GCM)
 GCMs = c("HadGEM2-CC365.rcp45","CSIRO-Mk3-6-0.rcp45") # WICA model selection
 CFs = c("Cool Wet","Hot Dry")
 
-#colors2<- c("#9A9EE5","#E10720")  # WarmWet/HotDry
-colors2<- c("#F3D3CB","#12045C")  # HotWet/WarmDryput directory
-OutDir = "C:/Users/adillon/Documents/RSS/WICA"
+colors2<- c("#9A9EE5","#E10720")  # WarmWet/HotDry
+#colors2<- c("#F3D3CB","#12045C")  # HotWet/WarmDry
 
-get_freeze_jennings = function(tmean, high_thresh_temperatures, low_thresh_temperatures){ # redefining get_freeze to incorporate Jennings Coefficient (* double check R will pull 'global' function and not package function)
-  freeze = ifelse(tmean > high_thresh_temperatures, 1, ifelse(tmean < low_thresh_temperatures, 0, tmean*(1/6)))
-  return(freeze)
-}
-
-
-
-#colors3<-c("gray",colors2)
+colors3<-c("gray",colors2)
 ############################################################ END USER INPUTS ###################################################################
 
 ############################################################ CREATE CLIMATE INPUTS #############################################################
+
 #### Historical
 # Convert pr.In to mm and F to C
 ALL_BASELINE$ppt_mm <- (ALL_BASELINE$PrecipCustom*25.4)
@@ -69,8 +61,6 @@ ALL_FUTURE$ppt_mm <- (ALL_FUTURE$PrecipCustom*25.4)
 ALL_FUTURE$tmax_C <- 5/9*(ALL_FUTURE$TmaxCustom - 32)
 ALL_FUTURE$tmin_C <- 5/9*(ALL_FUTURE$TminCustom - 32)
 ALL_FUTURE$tmean_C <- (ALL_FUTURE$tmax_C + ALL_FUTURE$tmin_C)/2
-#Add YrMon column
-
 
 if(dir.exists(OutDir) == FALSE){
   dir.create(OutDir)
@@ -106,19 +96,11 @@ for (j in 1:length(GCMs)){
     Snowpack.Init = Sites$Snowpack.Init[i]
     Soil.Init = Sites$Soil.Init[i]
     Shade.Coeff = Sites$Shade.Coeff[i]
-    coords = cbind(Sites$Lon[i], Sites$Lat[i])
-    sp <- SpatialPoints(coords, proj4string = projection)
-    jennings.Coeff = extract(jennings.raster, sp) # The Jennings coefficient = temperature where precip is half snow, half rain
-    
-    
-    # Not totally sure where to place this
-    low_thresh_temperatures = jennings.Coeff - 3 # This sets up a 6 degree span, which corresponds to the 1/6 = 0.167 precip fraction.
-    high_thresh_temperatures = jennings.Coeff + 3
     
     #Calculate daily water balance variables 
     DailyWB$SiteID = SiteID
     DailyWB$daylength = get_daylength(DailyWB$Date, Lat)
-    DailyWB$F = get_freeze_jennings(DailyWB$tmean_C, high_thresh_temperatures, low_thresh_temperatures) # incorporate Jennings coefficient
+    DailyWB$F = get_freeze(DailyWB$tmean_C)
     DailyWB$RAIN = get_rain(DailyWB$ppt_mm, DailyWB$F)
     DailyWB$SNOW = get_snow(DailyWB$ppt_mm, DailyWB$F)
     DailyWB$PACK = get_snowpack(DailyWB$ppt_mm, DailyWB$F, Snowpack.Init)
@@ -144,16 +126,6 @@ for (j in 1:length(GCMs)){
     AllDailyWB[[i]] = DailyWB
   }
 }
-WBData<-do.call(rbind,AllDailyWB)
+WBData_orig<-do.call(rbind,AllDailyWB)
 
-write.csv(WBData, file = 'C:/Users/adillon/Documents/RSS/WICA/Jennings.csv') # TEMPORARY - TEST
-
-# --------  TEST JENNINGS COEFFICIENT ------------------------------------------------------------------ #
-rm(list = ls())
-
-old <- read.csv("C:/Users/adillon/Documents/RSS/WICA/WICA_orig.csv")
-new <- read.csv("C:/Users/adillon/Documents/RSS/WICA/Jennings.csv")
-
-cor(old$F, new$F)
-cor(old$RAIN, new$RAIN)
-cor(old$SNOW, new$SNOW)
+write.csv(WBData_orig, file = 'C:/Users/adillon/Documents/RSS/WICA/WICA_orig.csv') # TEMPORARY - TEST
