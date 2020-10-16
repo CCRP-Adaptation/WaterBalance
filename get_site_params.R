@@ -163,10 +163,12 @@ sites[,11] <- 1 # default value for shade coefficient
 sites <- select(sites, 7,2,1,3:6, 8:11) # reorder columns
 colnames(sites) <- c("SiteID", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC.Max", "Wind", "Snowpack", "Soil.Init", "Shade.Coeff")
 
+sites$SWC.Max = sites$SWC.Max*10
 sites # check 
 
 write.csv(sites, file =  paste0(OutDir, site, "_site_characteristics.csv"), row.names = FALSE)
 
+soil_crop@data
 
 
 
