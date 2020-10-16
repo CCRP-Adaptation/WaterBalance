@@ -15,23 +15,31 @@ library(tmap)
 
 setwd("C:/Users/adillon/Documents/ArcGIS")# Set working directory to where spatial files are located
 
+# Set projection to be used for all spatial data: North America Albers Equal Area Conic
+aea <- '+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m no_defs' 
+
+
 site <- "PETE"
 OutDir <- "C:/Users/adillon/Documents/RSS/PETE/"
 
 # load shapefiles for NPS park boundaries, US Counties, 
 
 nps_boundary <- st_read('./nps_boundary/nps_boundary.shp')
-nps_boundary_centroids <- st_read('./nps_boundary_centroids/nps_boundary_centroids.shp')
+nps_boundary <- st_transform(nps_boundary, crs = aea)
+nps_centroids <- st_read('./nps_boundary_centroids/nps_boundary_centroids.shp')
+nps_centroids <- st_transform(nps_centroids, crs = aea)
 US_Counties <- st_read('./US_Counties/tl_2016_us_county.shp')
-State_Shapefile <- st_read('./State_Shapefile/Contig_US_Albers.shp')
+US_Counties <- st_transform(US_Counties, crs = aea)
+US_States <- st_read('./State_Shapefile/Contig_US_Albers.shp')
+US_States <- st_transform(US_States, crs = aea)
 maca <- raster('Climate_grid/tdn_90d.nc') # MACA grid
-maca_proj_to_nps <- projectRaster(maca, crs = '+proj=longlat +datum=NAD83 +no_defs')
+maca_proj <- projectRaster(maca, crs = nps_boundary)
 
 # select park
 
 park <- filter(nps_boundary, UNIT_CODE == "PETE")
-centroid <- filter(nps_boundary_centroids, UNIT_CODE == "PETE")
-state <- filter(State_Shapefile, STATE_NAME == "Virginia")
+centroid <- filter(nps_centroids, UNIT_CODE == "PETE")
+state <- filter(US_States, STATE_NAME == "Virginia")
 #########################     END USER INPUTS   ##################################################################################
 
 # Check that spatial data looks OK so far. Precise projection doesn't matter at this point but should be close. 
@@ -85,7 +93,8 @@ county$NAME[, drop = TRUE] # See console for the name of the county where the pa
 
 # First, import DEM and soils layers into ArcGIS.
 
-dem <- raster('C:/Users/adillon/Documents/RSS/PETE/elevation/ned30m37077.tif')  # DEM 30 m downloaded from USDA NRCS
+dem <- raster('elevation_cropped.tif')
+dem_crop <- crop(dem, maca.poly)
 soil_tercek <- raster('water_storage.tif') # Mike Tercek's soil file - original projection Albert's Equal Area
 soil_project_to_DEM <- projectRaster(soil_tercek, dem)
 
