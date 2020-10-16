@@ -87,20 +87,11 @@ county$NAME[, drop = TRUE] # See console for the name of the county where the pa
 
 dem <- raster('C:/Users/adillon/Documents/RSS/PETE/elevation/ned30m37077.tif')  # DEM 30 m downloaded from USDA NRCS
 soil_tercek <- raster('water_storage.tif') # Mike Tercek's soil file - original projection Albert's Equal Area
+soil_project_to_DEM <- projectRaster(soil_tercek, dem)
 
 # Project spatial data
 
 dem_projection <- crs(dem) # raster 
-soil_projection <- crs(soil_tercek) # This may come in handy later if we are able to import gridded soils directly into R
-
-maca.poly <- spTransform(maca.poly, soil_projection) # project MACA cell to projection of soil layer - not necessary now but will need to crop soil layer later to cut processing time for reprojection
-soil_crop <- crop(soil_tercek, maca.poly) # crop soil raster to maca cell - same comment as above
-
-
-#park_proj <- st_transform(park, dem_projection) # reproject park
-#centroid_proj <- st_transform(centroid, dem_projection) # reproject centroid
-
-soil_project_to_DEM <- projectRaster(soil_crop, crs = dem_projection) # project soil layer to DEM projection
 maca_project_to_DEM <- spTransform(maca.poly, dem_projection) # reproject MACA grid 
 
 
@@ -115,12 +106,10 @@ plot(aspect) # check aspect looks OK
 
 # Crop to projected MACA cell 
 
-#soil_crop <- crop(soil_proj, maca_proj)
+soil_crop <- crop(soil_project_to_DEM, maca_project_to_DEM)
 dem_crop <- crop(dem, maca_project_to_DEM)
 slope_crop <- crop(slope, maca_project_to_DEM)
 aspect_crop <- crop(aspect, maca_project_to_DEM)
-
-#head(soil_crop@data@attributes) # check to see that RAT followed through processing
 
 # get 10 random points from soil raster and create SpatialPoints object
 points <- spsample(maca_project_to_DEM, n = 10, type = "random")
@@ -154,21 +143,17 @@ tmap_arrange(soil_plot, dem_plot, slope_plot, aspect_plot) # make sure all point
 
 ####    EXTRACT DATA FROM POINTS ######################################################################################################
 
-i <- extract(soil_crop, points) 
-pointSoil <- factorValues(soil_crop, i)
-
 # reproject points to lat/long so can eventually add to .csv
 
 latlong <- st_as_sf(points) # convert to sf object 
 latlong <- st_transform(latlong, crs = 4326) # project to lat/long
-
 
 sites <- as.data.frame(st_coordinates(latlong)) # begin new dataframe for sites
 
 sites[,3] <- extract(dem, points)
 sites[,4] <- extract(aspect_crop, points)
 sites[,5] <- extract(slope_crop, points)
-sites[,6] <- pointSoil$AWS0_999
+sites[,6] <- extract(soil_crop, points)
 sites[,7] <- seq.int(nrow(sites))
 sites[,8] <- 5 # default value for wind
 sites[,9] <- 0 # default value for snowpack
