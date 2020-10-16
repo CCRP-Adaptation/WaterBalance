@@ -33,7 +33,7 @@ US_Counties <- st_transform(US_Counties, crs = aea)
 US_States <- st_read('./State_Shapefile/Contig_US_Albers.shp')
 US_States <- st_transform(US_States, crs = aea)
 maca <- raster('Climate_grid/tdn_90d.nc') # MACA grid
-maca_proj <- projectRaster(maca, crs = nps_boundary)
+maca <- projectRaster(maca, crs = nps_boundary)
 
 # select park
 
@@ -59,13 +59,11 @@ park_and_centroid <- tm_shape(park) +
 
 tmap_arrange(state_and_park, park_and_centroid)
 
-# MACA grid
+# Obtain MACA grid outline (not information within)
 
-centroid.coords <- cbind(centroid$Lon, centroid$Lat) # extract lat/long from centroid
-centroid.sp <- SpatialPoints(centroid.coords) # convert centroid into SpatialPoints object
- # import MACA gridded data - this is to obtain MACA grid outline not information within
-
-cell <- cellFromXY(maca, centroid.sp) # find grid cell park centroid lies within
+centroid <- as_Spatial(centroid) # objects must be Spatial (sp) to work with raster package (cannot be sf)
+centroid <- SpatialPoints(centroid) # Converts to point object instead of df
+cell <- cellFromXY(maca, centroid) # find grid cell park centroid lies within
 maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
 maca.poly <- rasterToPolygons(maca_cell) # Create MACA polygon - original file in lat/long (note: datum differs from park shapefiles)
 
@@ -74,43 +72,25 @@ maca.poly <- rasterToPolygons(maca_cell) # Create MACA polygon - original file i
 tm_shape(park) +
   tm_borders() +
   tm_fill(col = "lightgreen") +
-  tm_shape(centroid) +
-  tm_dots(size = 1, shape = 3) +
   tm_shape(maca.poly) +
   tm_borders()
 
-
-# get county
-
-county <- US_Counties %>%
-  filter(st_intersects(.,centroid, sparse = FALSE))
-
-county$NAME[, drop = TRUE] # See console for the name of the county where the park centroid resides. 
-                           # Input this name into https://datagateway.nrcs.usda.gov/GDGOrder.aspx to get DEM and gridded soil data
-
-
-######### STOP HERE AND DOWNLOAD DATA FROM https://datagateway.nrcs.usda.gov/GDGOrder.aspx #################################################
-
-# First, import DEM and soils layers into ArcGIS.
+# DEM and soils layers (sent by Mike Tercek)
 
 dem <- raster('elevation_cropped.tif')
-dem_crop <- crop(dem, maca.poly)
-soil_tercek <- raster('water_storage.tif') # Mike Tercek's soil file - original projection Albert's Equal Area
-soil_project_to_DEM <- projectRaster(soil_tercek, dem)
+dem <- projectRaster(dem, maca) 
 
-# Project spatial data
-
-dem_projection <- crs(dem) # raster 
-maca_project_to_DEM <- spTransform(maca.poly, dem_projection) # reproject MACA grid 
-
+dem_crop <- crop(dem, state)
+soil <- raster('water_storage.tif') # Mike Tercek's soil file - original projection Albert's Equal Area
+soil <- projectRaster(soil, maca)
 
 #####   SLOPE, ASPECT AND RANDOM POINTS   ##########################################################################################
 
 # Create slope and aspect rasters
 
-slope <- terrain(dem, opt = "slope", unit = "degrees", neighbors = 4) # 4 is better for "smooth" surfaces; 8 is better for rough. See https://www.rdocumentation.org/packages/raster/versions/3.1-5/topics/terrain
+slope <- terrain(dem_crop, opt = "slope", unit = "degrees", neighbors = 4) # 4 is better for "smooth" surfaces; 8 is better for rough. See https://www.rdocumentation.org/packages/raster/versions/3.1-5/topics/terrain
 plot(slope) # check slope looks OK
-aspect <- terrain(dem, opt = "aspect", unit = "degrees")
+aspect <- terrain(dem_crop, opt = "aspect", unit = "degrees")
 plot(aspect) # check aspect looks OK
 
 # Crop to projected MACA cell 
