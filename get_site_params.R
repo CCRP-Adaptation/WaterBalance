@@ -33,13 +33,14 @@ US_Counties <- st_transform(US_Counties, crs = aea)
 US_States <- st_read('./State_Shapefile/Contig_US_Albers.shp')
 US_States <- st_transform(US_States, crs = aea)
 maca <- raster('Climate_grid/tdn_90d.nc') # MACA grid
-maca <- projectRaster(maca, crs = nps_boundary)
+maca <- projectRaster(maca, crs = nps_boundary) # crs = aea does not work for projectRaster function
 
 # select park
 
 park <- filter(nps_boundary, UNIT_CODE == "PETE")
 centroid <- filter(nps_centroids, UNIT_CODE == "PETE")
 state <- filter(US_States, STATE_NAME == "Virginia")
+
 #########################     END USER INPUTS   ##################################################################################
 
 # Check that spatial data looks OK so far. Precise projection doesn't matter at this point but should be close. 
@@ -80,9 +81,11 @@ tm_shape(park) +
 dem <- raster('elevation_cropped.tif')
 dem <- projectRaster(dem, maca) 
 
-dem_crop <- crop(dem, state)
+dem_crop <- crop(dem, state) # to minimize file size for creating slope, aspect rasters
 soil <- raster('water_storage.tif') # Mike Tercek's soil file - original projection Albert's Equal Area
 soil <- projectRaster(soil, maca)
+
+rm(dem, maca)
 
 #####   SLOPE, ASPECT AND RANDOM POINTS   ##########################################################################################
 
@@ -95,13 +98,13 @@ plot(aspect) # check aspect looks OK
 
 # Crop to projected MACA cell 
 
-soil_crop <- crop(soil_project_to_DEM, maca_project_to_DEM)
-dem_crop <- crop(dem, maca_project_to_DEM)
-slope_crop <- crop(slope, maca_project_to_DEM)
-aspect_crop <- crop(aspect, maca_project_to_DEM)
+soil_crop <- crop(soil, maca.poly)
+dem_crop <- crop(dem_crop, maca.poly)
+slope_crop <- crop(slope, maca.poly)
+aspect_crop <- crop(aspect, maca.poly)
 
 # get 10 random points from soil raster and create SpatialPoints object
-points <- spsample(maca_project_to_DEM, n = 10, type = "random")
+points <- spsample(maca.poly, n = 10, type = "random")
 
 
 ####    PLOT TO CHECK SPATIAL ALIGNMENT   ############################################################################################
@@ -139,7 +142,7 @@ latlong <- st_transform(latlong, crs = 4326) # project to lat/long
 
 sites <- as.data.frame(st_coordinates(latlong)) # begin new dataframe for sites
 
-sites[,3] <- extract(dem, points)
+sites[,3] <- extract(dem_crop, points)
 sites[,4] <- extract(aspect_crop, points)
 sites[,5] <- extract(slope_crop, points)
 sites[,6] <- extract(soil_crop, points)
