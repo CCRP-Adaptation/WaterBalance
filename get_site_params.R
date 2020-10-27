@@ -160,7 +160,6 @@ sites # check
 
 write.csv(sites, file =  paste0(OutDir, site, "_site_characteristics.csv"), row.names = FALSE)
 
-soil_crop@data
 
 
 
