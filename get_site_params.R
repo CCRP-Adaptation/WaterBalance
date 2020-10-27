@@ -16,7 +16,8 @@ library(tmap)
 setwd("C:/Users/adillon/Documents/ArcGIS")# Set working directory to where spatial files are located
 
 # Set projection to be used for all spatial data: North America Albers Equal Area Conic
-aea <- '+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m no_defs' 
+proj4 <-"+init=epsg:5070"
+epsg <- 5070
 
 
 site <- "PETE"
@@ -25,15 +26,15 @@ OutDir <- "C:/Users/adillon/Documents/RSS/PETE/"
 # load shapefiles for NPS park boundaries, US Counties, 
 
 nps_boundary <- st_read('./nps_boundary/nps_boundary.shp')
-nps_boundary <- st_transform(nps_boundary, crs = aea)
+nps_boundary <- st_transform(nps_boundary, crs = 5070)
 nps_centroids <- st_read('./nps_boundary_centroids/nps_boundary_centroids.shp')
-nps_centroids <- st_transform(nps_centroids, crs = aea)
+nps_centroids <- st_transform(nps_centroids, crs = 5070)
 US_Counties <- st_read('./US_Counties/tl_2016_us_county.shp')
-US_Counties <- st_transform(US_Counties, crs = aea)
+US_Counties <- st_transform(US_Counties, crs = 5070)
 US_States <- st_read('./State_Shapefile/Contig_US_Albers.shp')
-US_States <- st_transform(US_States, crs = aea)
+US_States <- st_transform(US_States, crs = 5070)
 maca <- raster('Climate_grid/tdn_90d.nc') # MACA grid
-maca <- projectRaster(maca, crs = nps_boundary) # crs = aea does not work for projectRaster function
+maca <- projectRaster(maca, crs = "+init=epsg:5070")
 
 # select park
 
@@ -63,10 +64,11 @@ tmap_arrange(state_and_park, park_and_centroid)
 # Obtain MACA grid outline (not information within)
 
 centroid <- as_Spatial(centroid) # objects must be Spatial (sp) to work with raster package (cannot be sf)
-centroid <- SpatialPoints(centroid) # Converts to point object instead of df
+#centroid <- SpatialPoints(centroid) # Converts to point object instead of df
 cell <- cellFromXY(maca, centroid) # find grid cell park centroid lies within
 maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
 maca.poly <- rasterToPolygons(maca_cell) # Create MACA polygon - original file in lat/long (note: datum differs from park shapefiles)
+#maca.poly <- SpatialPolygons(maca.poly)
 
 # Plot to check MACA location
 
@@ -79,27 +81,25 @@ tm_shape(park) +
 # DEM and soils layers (sent by Mike Tercek)
 
 dem <- raster('elevation_cropped.tif')
-dem <- projectRaster(dem, maca) 
-
-dem_crop <- crop(dem, state) # to minimize file size for creating slope, aspect rasters
 soil <- raster('water_storage.tif') # Mike Tercek's soil file - original projection Albert's Equal Area
-soil <- projectRaster(soil, maca)
 
-rm(dem, maca)
+soil <- projectRaster(soil, dem) # so that dem and soil tifs start at same projection
 
+dem <- projectRaster(dem, crs = "+init=epsg:5070") 
+soil <- projectRaster(soil, crs = "+init=epsg:5070")
 #####   SLOPE, ASPECT AND RANDOM POINTS   ##########################################################################################
 
 # Create slope and aspect rasters
 
-slope <- terrain(dem_crop, opt = "slope", unit = "degrees", neighbors = 4) # 4 is better for "smooth" surfaces; 8 is better for rough. See https://www.rdocumentation.org/packages/raster/versions/3.1-5/topics/terrain
+slope <- terrain(dem, opt = "slope", unit = "degrees", neighbors = 4) # 4 is better for "smooth" surfaces; 8 is better for rough. See https://www.rdocumentation.org/packages/raster/versions/3.1-5/topics/terrain
 plot(slope) # check slope looks OK
-aspect <- terrain(dem_crop, opt = "aspect", unit = "degrees")
+aspect <- terrain(dem, opt = "aspect", unit = "degrees")
 plot(aspect) # check aspect looks OK
 
 # Crop to projected MACA cell 
 
 soil_crop <- crop(soil, maca.poly)
-dem_crop <- crop(dem_crop, maca.poly)
+dem_crop <- crop(dem, maca.poly)
 slope_crop <- crop(slope, maca.poly)
 aspect_crop <- crop(aspect, maca.poly)
 
