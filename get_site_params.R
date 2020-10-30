@@ -1,5 +1,5 @@
 #####################################################################
-###   Pulling Site Parameters for D. THoma Water Balance Model ######
+###   Pulling Site Parameters for D. Thoma Water Balance Model ######
 #####################################################################
 
 rm(list=ls())
@@ -9,7 +9,14 @@ library(raster)
 library(dplyr)
 library(rgdal)
 library(tmap)
-#library(soilDB)
+library(tmaptools)
+library(rJava)
+library(OpenStreetMap)
+
+# Enter the following code if you need to install Java and point R to the directory:
+# Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_271') # for 64-bit version
+
+
 
 ###########################   USER INPUTS ###################################################################################### 
 
@@ -78,6 +85,10 @@ tm_shape(park) +
   tm_shape(maca.poly) +
   tm_borders()
 
+# Automate pretty map 
+
+read_osm(park)
+
 # DEM and soils layers (sent by Mike Tercek)
 
 dem <- raster('elevation_cropped.tif')
@@ -133,7 +144,7 @@ aspect_plot <- tm_shape(aspect_crop) +
 
 tmap_arrange(soil_plot, dem_plot, slope_plot, aspect_plot) # make sure all points are within boundaries and plots look good. ignore warning message related to tmap_options
 
-####    EXTRACT DATA FROM POINTS ######################################################################################################
+####    EXTRACT DATA FROM POINTS  ######################################################################################################
 
 # reproject points to lat/long so can eventually add to .csv
 
@@ -159,6 +170,10 @@ sites$SWC.Max = sites$SWC.Max*10
 sites # check 
 
 write.csv(sites, file =  paste0(OutDir, site, "_site_characteristics.csv"), row.names = FALSE)
+
+
+
+
 
 
 
