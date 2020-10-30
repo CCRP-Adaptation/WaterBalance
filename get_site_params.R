@@ -16,11 +16,16 @@ library(OpenStreetMap)
 # Enter the following code if you need to install Java and point R to the directory:
 # Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_271') # for 64-bit version
 
-
+# Required data files for DEM and Soil WHC measurements are located on the Shared Drive:
+# DOI\WB working group - General\Data_Files
+# It is probably best to download the files to your local computer if you will use this script regularly
 
 ###########################   USER INPUTS ###################################################################################### 
 
 setwd("C:/Users/adillon/Documents/ArcGIS")# Set working directory to where spatial files are located
+
+dem <- raster('elevation_cropped.tif') 
+soil <- raster('water_storage.tif') # Mike Tercek's soil file - original projection Albert's Equal Area
 
 # Set projection to be used for all spatial data: North America Albers Equal Area Conic
 proj4 <-"+init=epsg:5070"
@@ -91,8 +96,7 @@ read_osm(park)
 
 # DEM and soils layers (sent by Mike Tercek)
 
-dem <- raster('elevation_cropped.tif')
-soil <- raster('water_storage.tif') # Mike Tercek's soil file - original projection Albert's Equal Area
+
 
 soil <- projectRaster(soil, dem) # so that dem and soil tifs start at same projection
 
