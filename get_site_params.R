@@ -24,35 +24,48 @@ library(OpenStreetMap)
 
 setwd("C:/Users/adillon/Documents/ArcGIS")# Set working directory to where spatial files are located
 
-dem <- raster('elevation_cropped.tif') 
-soil <- raster('water_storage.tif') # Mike Tercek's soil file - original projection Albert's Equal Area
-
-# Set projection to be used for all spatial data: North America Albers Equal Area Conic
-proj4 <-"+init=epsg:5070"
-epsg <- 5070
-
+# Park info
 
 site <- "PETE"
-OutDir <- "C:/Users/adillon/Documents/RSS/PETE/"
+state <- "Virginia"
 
-# load shapefiles for NPS park boundaries, US Counties, 
+# Set projection to be used for all spatial data:
+
+proj4 <-"+init=epsg:5070" #  North America Albers Equal Area Conic
+epsg <- 5070
+
+OutDir <- "C:/Users/adillon/Documents/RSS/PETE/" # Output directory
+
+###########################   END USER INPUTS   #################################################################################
+
+###  Spatial Data  #####
+
+# rasters
+
+maca <- raster('./Climate_grid/tdn_90d.nc') 
+maca <- projectRaster(maca, crs = proj4)
+dem <- raster('elevation_cropped.tif') 
+dem <- projectRaster(dem, crs = proj4)
+soil <- raster('water_storage.tif') 
+soil <- projectRaster(soil, crs= proj4)
+
+# shapefiles - can use epsg code
 
 nps_boundary <- st_read('./nps_boundary/nps_boundary.shp')
-nps_boundary <- st_transform(nps_boundary, crs = 5070)
+nps_boundary <- st_transform(nps_boundary, st_crs(maca))
 nps_centroids <- st_read('./nps_boundary_centroids/nps_boundary_centroids.shp')
-nps_centroids <- st_transform(nps_centroids, crs = 5070)
+nps_centroids <- st_transform(nps_centroids, st_crs(maca))
 US_Counties <- st_read('./US_Counties/tl_2016_us_county.shp')
-US_Counties <- st_transform(US_Counties, crs = 5070)
+US_Counties <- st_transform(US_Counties, st_crs(maca))
 US_States <- st_read('./State_Shapefile/Contig_US_Albers.shp')
-US_States <- st_transform(US_States, crs = 5070)
-maca <- raster('Climate_grid/tdn_90d.nc') # MACA grid
-maca <- projectRaster(maca, crs = "+init=epsg:5070")
+US_States <- st_transform(US_States, st_crs(maca))
+
 
 # select park
 
-park <- filter(nps_boundary, UNIT_CODE == "PETE")
-centroid <- filter(nps_centroids, UNIT_CODE == "PETE")
-state <- filter(US_States, STATE_NAME == "Virginia")
+park <- filter(nps_boundary, UNIT_CODE == site)
+centroid <- filter(nps_centroids, UNIT_CODE == site)
+state <- filter(US_States, STATE_NAME == state)
 
 #########################     END USER INPUTS   ##################################################################################
 
@@ -80,73 +93,40 @@ centroid <- as_Spatial(centroid) # objects must be Spatial (sp) to work with ras
 cell <- cellFromXY(maca, centroid) # find grid cell park centroid lies within
 maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
 maca.poly <- rasterToPolygons(maca_cell) # Create MACA polygon - original file in lat/long (note: datum differs from park shapefiles)
-#maca.poly <- SpatialPolygons(maca.poly)
 
-# Plot to check MACA location
+# Plot
 
-tm_shape(park) +
-  tm_borders() +
-  tm_fill(col = "lightgreen") +
-  tm_shape(maca.poly) +
+tm_shape(park) + 
+  tm_borders() + 
+  tm_shape(centroid) + 
+  tm_dots() + 
+  tm_shape(maca.poly) + 
   tm_borders()
 
 # Automate pretty map 
 
-read_osm(park)
+#read_osm(park)
 
-# DEM and soils layers (sent by Mike Tercek)
-
-
-
-soil <- projectRaster(soil, dem) # so that dem and soil tifs start at same projection
-
-dem <- projectRaster(dem, crs = "+init=epsg:5070") 
-soil <- projectRaster(soil, crs = "+init=epsg:5070")
 #####   SLOPE, ASPECT AND RANDOM POINTS   ##########################################################################################
 
 # Create slope and aspect rasters
 
 slope <- terrain(dem, opt = "slope", unit = "degrees", neighbors = 4) # 4 is better for "smooth" surfaces; 8 is better for rough. See https://www.rdocumentation.org/packages/raster/versions/3.1-5/topics/terrain
-plot(slope) # check slope looks OK
 aspect <- terrain(dem, opt = "aspect", unit = "degrees")
-plot(aspect) # check aspect looks OK
 
-# Crop to projected MACA cell 
 
-soil_crop <- crop(soil, maca.poly)
-dem_crop <- crop(dem, maca.poly)
-slope_crop <- crop(slope, maca.poly)
-aspect_crop <- crop(aspect, maca.poly)
 
 # get 10 random points from soil raster and create SpatialPoints object
 points <- spsample(maca.poly, n = 10, type = "random")
 
+# plot to check points in MACA cell
 
-####    PLOT TO CHECK SPATIAL ALIGNMENT   ############################################################################################
-
-# Make sure points look identical against all rasters, and that rasters are similar in size and orientation
-
-soil_plot <- tm_shape(soil_crop) + 
-  tm_raster(legend.show = FALSE) +
-  tm_shape(points) +             
-  tm_dots(size = 1)
-
-dem_plot <- tm_shape(dem_crop) + 
-  tm_raster(legend.show = FALSE) + 
+tm_shape(park) + 
+  tm_borders() + 
+  tm_shape(maca.poly) + 
+  tm_borders() + 
   tm_shape(points) + 
-  tm_dots(size = 1)
-
-slope_plot <- tm_shape(slope_crop) + 
-  tm_raster(legend.show = FALSE) + 
-  tm_shape(points) + 
-  tm_dots(size = 1)
-
-aspect_plot <- tm_shape(aspect_crop) + 
-  tm_raster(legend.show = FALSE) + 
-  tm_shape(points) + 
-  tm_dots(size = 1)
-
-tmap_arrange(soil_plot, dem_plot, slope_plot, aspect_plot) # make sure all points are within boundaries and plots look good. ignore warning message related to tmap_options
+  tm_dots()
 
 ####    EXTRACT DATA FROM POINTS  ######################################################################################################
 
@@ -157,10 +137,10 @@ latlong <- st_transform(latlong, crs = 4326) # project to lat/long
 
 sites <- as.data.frame(st_coordinates(latlong)) # begin new dataframe for sites
 
-sites[,3] <- extract(dem_crop, points)
-sites[,4] <- extract(aspect_crop, points)
-sites[,5] <- extract(slope_crop, points)
-sites[,6] <- extract(soil_crop, points)
+sites[,3] <- extract(dem, points)
+sites[,4] <- extract(aspect, points)
+sites[,5] <- extract(slope, points)
+sites[,6] <- extract(soil, points)
 sites[,7] <- seq.int(nrow(sites))
 sites[,8] <- 5 # default value for wind
 sites[,9] <- 0 # default value for snowpack
