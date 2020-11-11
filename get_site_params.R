@@ -114,8 +114,6 @@ tm_shape(park) +
 slope <- terrain(dem, opt = "slope", unit = "degrees", neighbors = 4) # 4 is better for "smooth" surfaces; 8 is better for rough. See https://www.rdocumentation.org/packages/raster/versions/3.1-5/topics/terrain
 aspect <- terrain(dem, opt = "aspect", unit = "degrees")
 
-
-
 # get 10 random points from soil raster and create SpatialPoints object
 points <- spsample(maca.poly, n = 10, type = "random")
 
