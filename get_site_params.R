@@ -14,7 +14,7 @@ library(rJava)
 library(OpenStreetMap)
 
 # Enter the following code if you need to install Java and point R to the directory:
-# Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_271') # for 64-bit version
+#Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_261') # for 64-bit version #make sure to check the program file for the jre1 numbers.
 
 # Required data files for DEM and Soil WHC measurements are located on the Shared Drive:
 # DOI\WB working group - General\Data_Files
@@ -22,19 +22,19 @@ library(OpenStreetMap)
 
 ###########################   USER INPUTS ###################################################################################### 
 
-setwd("C:/Users/adillon/Documents/ArcGIS")# Set working directory to where spatial files are located
+setwd("C:/Users/msears/Documents/GIS")# Set working directory to where spatial files are located
 
 # Park info
 
-site <- "PETE"
-state <- "Virginia"
+site <- "MACA"
+state <- "Kentucky"
 
 # Set projection to be used for all spatial data:
 
 proj4 <-"+init=epsg:5070" #  North America Albers Equal Area Conic
 epsg <- 5070
 
-OutDir <- "C:/Users/adillon/Documents/RSS/PETE/" # Output directory
+OutDir <- "C:/Users/msears/Documents/WB-testing/" # Output directory
 
 ###########################   END USER INPUTS   #################################################################################
 
