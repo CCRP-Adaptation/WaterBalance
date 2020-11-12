@@ -104,13 +104,6 @@ tm_shape(park) +
   tm_shape(maca.poly) + 
   tm_borders()
 
-# Automate pretty map 
-
-adjacent_cells <- adjacent(maca, cells = cell, directions = 8) # Find cells around centroid
-adjacent_cells <- rasterFromCells(maca, adjacent_cells)
-adjacent_poly <- rasterToPolygons(adjacent_cells)
-
-#read_osm(park)
 
 #####   SLOPE, ASPECT AND RANDOM POINTS   ##########################################################################################
 
@@ -157,6 +150,27 @@ sites$SWC.Max = sites$SWC.Max*10
 sites # check 
 
 write.csv(sites, file =  paste0(OutDir, site, "_site_characteristics.csv"), row.names = FALSE)
+
+###########  AUTOMATE MAP   ####################################################################################################
+
+adjacent_cells <- adjacent(maca, cells = cell, directions = 8) # Find cells around centroid
+adjacent_cells <- rasterFromCells(maca, adjacent_cells) # Create new raster from cells
+adjacent_poly <- rasterToPolygons(adjacent_cells) # Convert raster to polygon so cell outlines are visible
+
+adjacent_poly <- spTransform(adjacent_poly, CRSobj = "+init=epsg:4326")
+
+tmap_mode('plot')
+osm <- tmaptools::read_osm(bb(adjacent_poly), type = "osm") # can try type = "bing" for satellite image if preferred
+
+
+tm_shape(osm) + tm_rgb() +
+  tm_shape(adjacent_poly) + tm_borders(lwd = 3) + 
+  tm_shape(maca.poly) + tm_borders(col = "#0000ff", lwd = 4) + 
+  tm_add_legend(type = "line", label = "MACA grid", col = "#56585B", lwd = 3) + 
+  tm_add_legend(type = "line", label = "Selected CMIP5 cell", col = "#0000ff", lwd = 4) +
+  tm_compass(position = c("right", "top"), size = 3) + tm_scale_bar(text.size = 0.75) +
+  tm_layout(legend.stack = "vertical", legend.frame = TRUE, legend.bg.color = "white", legend.text.size = 1)
+
 
 
 
