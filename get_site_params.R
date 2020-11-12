@@ -66,6 +66,7 @@ US_States <- st_transform(US_States, st_crs(maca))
 park <- filter(nps_boundary, UNIT_CODE == site)
 centroid <- filter(nps_centroids, UNIT_CODE == site)
 state <- filter(US_States, STATE_NAME == state)
+buffer <- st_buffer(centroid, dist = 12, endCapStyle = "SQUARE") # for map 
 
 #########################     END USER INPUTS   ##################################################################################
 
@@ -104,6 +105,10 @@ tm_shape(park) +
   tm_borders()
 
 # Automate pretty map 
+
+adjacent_cells <- adjacent(maca, cells = cell, directions = 8) # Find cells around centroid
+adjacent_cells <- rasterFromCells(maca, adjacent_cells)
+adjacent_poly <- rasterToPolygons(adjacent_cells)
 
 #read_osm(park)
 
