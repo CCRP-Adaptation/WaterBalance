@@ -163,13 +163,15 @@ tmap_mode('plot')
 osm <- tmaptools::read_osm(bb(adjacent_poly), type = "osm") # can try type = "bing" for satellite image if preferred
 
 
-tm_shape(osm) + tm_rgb() +
+map <- tm_shape(osm) + tm_rgb() +
   tm_shape(adjacent_poly) + tm_borders(lwd = 3) + 
   tm_shape(maca.poly) + tm_borders(col = "#0000ff", lwd = 4) + 
   tm_add_legend(type = "line", label = "MACA grid", col = "#56585B", lwd = 3) + 
   tm_add_legend(type = "line", label = "Selected CMIP5 cell", col = "#0000ff", lwd = 4) +
   tm_compass(position = c("right", "top"), size = 3) + tm_scale_bar(text.size = 0.75) +
   tm_layout(legend.stack = "vertical", legend.frame = TRUE, legend.bg.color = "white", legend.text.size = 1)
+
+tmap_save(map, filename = paste0(OutDir,"Map.png"))
 
 
 
