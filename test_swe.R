@@ -1,4 +1,4 @@
-#############################################################################
+ #############################################################################
 ######    TEST SNOW-WATER EQUIVALENT AGAINST D. THOMA'S EXCEL MODEL  ########
 #############################################################################
 
@@ -9,6 +9,8 @@
 
 rm(list = ls())
 
+library(lubridate)
+
 # ------ Load and prep data ----------------------------------------------------------------- #
 
 frog <- read.csv("C:/Users/adillon/Documents/Water_Balance_Update/frog_rock_for_R.csv")
@@ -16,6 +18,8 @@ head(frog)
 colnames(frog) <- c("year", "yday", "dayl", "prcp", "srad", "swe", "tmaxC", "tminC", "vp")
 
 params <- read.csv("C:/Users/adillon/Documents/Water_Balance_Update/Site_params_Frog_Rock.csv")
+
+frog$tmean <- (frog$tmaxC + frog$tminC)/2
 
 # ----- Functions ------------------------------------------------------------------------------ #
 
@@ -36,6 +40,8 @@ get_freeze_jennings = function(tmean, high_thresh_temperature, low_thresh_temper
 low_thresh_temperature = params$Jennings.Coeff - 3 # This sets up a 6 degree span, which corresponds to the 1/6 = 0.167 precip fraction.
 high_thresh_temperature = params$Jennings.Coeff + 3
 
+frog$freeze <- get_freeze_jennings(frog$tmean, high_thresh_temperature, low_thresh_temperature)
+
 #' Snow
 #'
 #' Calculates snowfall totals based on precipitation and freeze factor
@@ -48,6 +54,9 @@ get_snow = function(ppt, freeze){
   snow = (1 - freeze)*ppt
   return(snow)
 }
+
+frog$snow <- get_snow(frog$prcp, freeze)
+
 
 #' Snowpack
 #'
@@ -67,6 +76,8 @@ get_snowpack = function(ppt, freeze, p.0=NULL){
   }
   return(snowpack)
 }
+
+frog$pack <- get_snowpack(frog$prcp, freeze, p.0 = NULL)
 
 #' Melt
 #'
@@ -88,9 +99,10 @@ get_melt = function(snowpack, snow, freeze, p.0=NULL){
   return(melt)
 }
 
-# --- Test functions to see whether results are the same as 'YELL Frog Rock clim and params cross check.xlsx'  -------------------------------------------------------------- #
+frog$melt <- get_melt(pack, snow, freeze, p.0 = NULL)
 
-frog$tmean <- (frog$tmaxC + frog$tminC)/2
+write.csv(pack, "C:/Users/adillon/Documents/Water_Balance_Update/SWE/pack_R.csv")
 
-freeze <- get_freeze_jennings(frog$tmean, high_thresh_temperature, low_thresh_temperature)
+
+
 
