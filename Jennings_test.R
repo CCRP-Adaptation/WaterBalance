@@ -46,11 +46,10 @@ CFs = c("Cool Wet","Hot Dry")
 colors2<- c("#F3D3CB","#12045C")  # HotWet/WarmDryput directory
 OutDir = "C:/Users/adillon/Documents/RSS/WICA"
 
-get_freeze_jennings = function(tmean, high_thresh_temperatures, low_thresh_temperatures){ # redefining get_freeze to incorporate Jennings Coefficient (* double check R will pull 'global' function and not package function)
-  freeze = ifelse(tmean > high_thresh_temperatures, 1, ifelse(tmean < low_thresh_temperatures, 0, tmean*(1/6)))
+get_freeze_jennings = function(tmean, high_thresh_temperature, low_thresh_temperature){ # redefining get_freeze to incorporate Jennings Coefficient (* double check R will pull 'global' function and not package function)
+  freeze = ifelse(tmean <= low_thresh_temperature, 0, ifelse(tmean >= high_thresh_temperature, 1, (1/(high_thresh_temperature - low_thresh_temperature))*(tmean - low_thresh_temperature)))
   return(freeze)
 }
-
 
 
 #colors3<-c("gray",colors2)

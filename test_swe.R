@@ -1,0 +1,96 @@
+#############################################################################
+######    TEST SNOW-WATER EQUIVALENT AGAINST D. THOMA'S EXCEL MODEL  ########
+#############################################################################
+
+# Annie Kellner 
+# 11/13/2020
+
+# PACK (D. Thoma) = init.value - melt + snowfall
+
+rm(list = ls())
+
+# ------ Load and prep data ----------------------------------------------------------------- #
+
+frog <- read.csv("C:/Users/adillon/Documents/Water_Balance_Update/frog_rock_for_R.csv")
+head(frog)
+colnames(frog) <- c("year", "yday", "dayl", "prcp", "srad", "swe", "tmaxC", "tminC", "vp")
+
+params <- read.csv("C:/Users/adillon/Documents/Water_Balance_Update/Site_params_Frog_Rock.csv")
+
+# ----- Functions ------------------------------------------------------------------------------ #
+
+#' Freeze factor with Jennings Coefficient
+#'
+#' Calculates a freeze factor from 0-1 based on mean temperature and Jennings coefficient
+#' @param tmean A vector of daily mean temperatures (deg C).
+#' @param high_thresh_temperatures Jennings coefficient + 3 
+#' @param low_thresh_temperatures Jennings coefficient - 3
+#' @export
+#' get_freeze()
+
+get_freeze_jennings = function(tmean, high_thresh_temperature, low_thresh_temperature){ # redefining get_freeze to incorporate Jennings Coefficient (* double check R will pull 'global' function and not package function)
+  freeze = ifelse(tmean <= low_thresh_temperature, 0, ifelse(tmean >= high_thresh_temperature, 1, (1/(high_thresh_temperature - low_thresh_temperature))*(tmean - low_thresh_temperature)))
+  return(freeze)
+}
+
+low_thresh_temperature = params$Jennings.Coeff - 3 # This sets up a 6 degree span, which corresponds to the 1/6 = 0.167 precip fraction.
+high_thresh_temperature = params$Jennings.Coeff + 3
+
+#' Snow
+#'
+#' Calculates snowfall totals based on precipitation and freeze factor
+#' @param ppt A vector of precipitation values.
+#' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
+#' @export
+#' get_snow()
+
+get_snow = function(ppt, freeze){
+  snow = (1 - freeze)*ppt
+  return(snow)
+}
+
+#' Snowpack
+#'
+#' Calculates snowpack accumulation at time steps, from a time series of precipitation values, freeze factor, and an initial snowpack value
+#' @param ppt A vector of precipitation values.
+#' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
+#' @param p.0 (optional) Initial snowpack value. Default is 0.
+#' @export
+#' get_snowpack()
+
+get_snowpack = function(ppt, freeze, p.0=NULL){
+  p.i = ifelse(!is.null(p.0), p.0, 0) 
+  snowpack = c()
+  for(i in 1:length(ppt)){
+    snowpack[i] = ((1-freeze[i])^2)*ppt[i] + (1-freeze[i])*p.i
+    p.i = snowpack[i]
+  }
+  return(snowpack)
+}
+
+#' Melt
+#'
+#' Calculates the amount of snowmelt at time steps from snowpack, snowfall, and freeze factor.
+#' @param snowpack A time series vector of snowpack accumulation values.
+#' @param snow A time series vector of snowfall values.
+#' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
+#' @param p.0 (optional) Initial snowpack value. Default is 0.
+#' @export
+#' get_snowpack()
+
+get_melt = function(snowpack, snow, freeze, p.0=NULL){
+  p.i = ifelse(!is.null(p.0), p.0, 0)
+  melt = c()
+  for(i in 1:length(snowpack)){
+    melt[i] = freeze[i]*(p.i + snow[i])
+    p.i = snowpack[i]
+  }
+  return(melt)
+}
+
+# --- Test functions to see whether results are the same as 'YELL Frog Rock clim and params cross check.xlsx'  -------------------------------------------------------------- #
+
+frog$tmean <- (frog$tmaxC + frog$tminC)/2
+
+freeze <- get_freeze_jennings(frog$tmean, high_thresh_temperature, low_thresh_temperature)
+
