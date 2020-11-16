@@ -26,8 +26,8 @@ setwd("C:/Users/msears/Documents/GIS")# Set working directory to where spatial f
 
 # Park info
 
-site <- "MACA"
-state <- "Kentucky"
+site <- "DINO"
+state <- "Colorado"
 
 # Set projection to be used for all spatial data:
 
@@ -64,7 +64,17 @@ US_States <- st_transform(US_States, st_crs(maca))
 # select park
 
 park <- filter(nps_boundary, UNIT_CODE == site)
-centroid <- filter(nps_centroids, UNIT_CODE == site)
+
+# TWO DIFFERENT OPTIONS FOR CENTROID - use 1st option if running a general RSS and using park centroid. Second option if using specific lat long.
+
+#centroid <- filter(nps_centroids, UNIT_CODE == site) # use this line if using park centroid
+
+centroid <- data.frame(Lat = 40.4465, Lon = -108.7651) %>% # use lines 69, 70, 72, 73 if NOT using centroid
+  st_as_sf(coords=c("Lon", "Lat"))
+
+centroid <- st_set_crs(centroid, "+proj=longlat +datum=NAD83 +no_defs")
+centroid <- st_transform(centroid, st_crs(maca))
+
 state <- filter(US_States, STATE_NAME == state)
 buffer <- st_buffer(centroid, dist = 12, endCapStyle = "SQUARE") # for map 
 
@@ -89,7 +99,7 @@ tmap_arrange(state_and_park, park_and_centroid)
 
 # Obtain MACA grid outline (not information within)
 
-centroid <- as_Spatial(centroid) # objects must be Spatial (sp) to work with raster package (cannot be sf)
+centroid<- as_Spatial(centroid) # objects must be Spatial (sp) to work with raster package (cannot be sf)
 #centroid <- SpatialPoints(centroid) # Converts to point object instead of df
 cell <- cellFromXY(maca, centroid) # find grid cell park centroid lies within
 maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
@@ -171,7 +181,7 @@ map <- tm_shape(osm) + tm_rgb() +
   tm_compass(position = c("right", "top"), size = 3) + tm_scale_bar(text.size = 0.75) +
   tm_layout(legend.stack = "vertical", legend.frame = TRUE, legend.bg.color = "white", legend.text.size = 1)
 
-tmap_save(map, filename = paste0(OutDir,"Map.png"))
+tmap_save(map, filename = paste(OutDir,site,"-Map.png"))
 
 
 
