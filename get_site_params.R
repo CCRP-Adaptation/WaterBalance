@@ -69,7 +69,7 @@ park <- filter(nps_boundary, UNIT_CODE == site)
 
 #centroid <- filter(nps_centroids, UNIT_CODE == site) # use this line if using park centroid
 
-centroid <- data.frame(Lat = 40.4465, Lon = -108.7651) %>% # use lines 69, 70, 72, 73 if NOT using centroid
+centroid <- data.frame(Lat = 40.4465, Lon = -108.7651) %>% # use lines 72, 73, 75, 76 if NOT using centroid
   st_as_sf(coords=c("Lon", "Lat"))
 
 centroid <- st_set_crs(centroid, "+proj=longlat +datum=NAD83 +no_defs")
