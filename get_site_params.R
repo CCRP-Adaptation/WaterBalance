@@ -22,20 +22,24 @@ library(OpenStreetMap)
 
 ###########################   USER INPUTS ###################################################################################### 
 
-setwd("C:/Users/msears/Documents/GIS")# Set working directory to where spatial files are located
+setwd("C:/Users/adillon/Documents/ArcGIS")# Set working directory to where spatial files are located
 
 # Park info
 
-site <- "DINO"
-state <- "Colorado"
+site <- "PETE"
+state <- "Virginia"
+
+# MACA cell lat/long (if not using park centroid to determine MACA cell)
+
+lat <- 40.4465
+lon <- -108.7651
 
 # Set projection to be used for all spatial data:
 
 proj4 <-"+init=epsg:5070" #  North America Albers Equal Area Conic
 epsg <- 5070
 
-OutDir <- "C:/Users/msears/Documents/WB-testing/" # Output directory
-
+OutDir <- "C:/Users/adillon/Documents/RSS/PETE/" # Output directory
 ###########################   END USER INPUTS   #################################################################################
 
 ###  Spatial Data  #####
@@ -67,13 +71,13 @@ park <- filter(nps_boundary, UNIT_CODE == site)
 
 # TWO DIFFERENT OPTIONS FOR CENTROID - use 1st option if running a general RSS and using park centroid. Second option if using specific lat long.
 
-#centroid <- filter(nps_centroids, UNIT_CODE == site) # use this line if using park centroid
+centroid <- filter(nps_centroids, UNIT_CODE == site) # use this line if using park centroid
 
-centroid <- data.frame(Lat = 40.4465, Lon = -108.7651) %>% # use lines 72, 73, 75, 76 if NOT using centroid
-  st_as_sf(coords=c("Lon", "Lat"))
+#centroid <- data.frame(Lat = lat, Lon = lon) %>% # use lines 72, 73, 75, 76 if NOT using centroid
+  #st_as_sf(coords=c("Lon", "Lat"))
 
-centroid <- st_set_crs(centroid, "+proj=longlat +datum=NAD83 +no_defs")
-centroid <- st_transform(centroid, st_crs(maca))
+#centroid <- st_set_crs(centroid, "+proj=longlat +datum=NAD83 +no_defs")
+#centroid <- st_transform(centroid, st_crs(maca))
 
 state <- filter(US_States, STATE_NAME == state)
 buffer <- st_buffer(centroid, dist = 12, endCapStyle = "SQUARE") # for map 
