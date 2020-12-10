@@ -2,6 +2,9 @@
 ###   Pulling Site Parameters for D. Thoma Water Balance Model ######
 #####################################################################
 
+# Annie Kellner Dillon 
+# 2020-12-10
+
 rm(list=ls())
 
 library(sf)
@@ -10,8 +13,8 @@ library(dplyr)
 library(rgdal)
 library(tmap)
 library(tmaptools)
-library(rJava)
-library(OpenStreetMap)
+library(rJava) # required for mapping
+library(OpenStreetMap) # required for mapping
 
 # Enter the following code if you need to install Java and point R to the directory:
 #Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_261') # for 64-bit version #make sure to check the program file for the jre1 numbers.
@@ -26,8 +29,8 @@ setwd("C:/Users/adillon/Documents/ArcGIS")# Set working directory to where spati
 
 # Park info
 
-site <- "PETE"
-state <- "Virginia"
+site <- "SAGU"
+state <- "Arizona"
 
 # MACA cell lat/long (if not using park centroid to determine MACA cell)
 
@@ -37,14 +40,15 @@ lon <- -108.7651
 # Set projection to be used for all spatial data:
 
 proj4 <-"+init=epsg:5070" #  North America Albers Equal Area Conic
-epsg <- 5070
+epsg <- 5070 # North American Albers Equal Area Conic
 
-OutDir <- "C:/Users/adillon/Documents/RSS/PETE/" # Output directory
+OutDir <- "C:/Users/adillon/Documents/RSS/PETE/" # Output directory. Ouput created is a .csv file with site parameters and a series of maps for ppt presentation
+
 ###########################   END USER INPUTS   #################################################################################
 
 ###  Spatial Data  #####
 
-# rasters
+# rasters - use proj4 to define projection
 
 maca <- raster('./Climate_grid/tdn_90d.nc') 
 maca <- projectRaster(maca, crs = proj4)
@@ -53,7 +57,7 @@ dem <- projectRaster(dem, crs = proj4)
 soil <- raster('water_storage.tif') 
 soil <- projectRaster(soil, crs= proj4)
 
-# shapefiles - can use epsg code
+# shapefiles - can use epsg code or existing object to define projection
 
 nps_boundary <- st_read('./nps_boundary/nps_boundary.shp')
 nps_boundary <- st_transform(nps_boundary, st_crs(maca))
@@ -80,7 +84,6 @@ centroid <- filter(nps_centroids, UNIT_CODE == site) # use this line if using pa
 #centroid <- st_transform(centroid, st_crs(maca))
 
 state <- filter(US_States, STATE_NAME == state)
-buffer <- st_buffer(centroid, dist = 12, endCapStyle = "SQUARE") # for map 
 
 #########################     END USER INPUTS   ##################################################################################
 
@@ -160,38 +163,75 @@ sites[,11] <- 1 # default value for shade coefficient
 sites <- select(sites, 7,2,1,3:6, 8:11) # reorder columns
 colnames(sites) <- c("SiteID", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC.Max", "Wind", "Snowpack", "Soil.Init", "Shade.Coeff")
 
-sites$SWC.Max = sites$SWC.Max*10
+sites$SWC.Max = sites$SWC.Max*10 # convert units for Soil Water-holding capacity
 sites # check 
 
 write.csv(sites, file =  paste0(OutDir, site, "_site_characteristics.csv"), row.names = FALSE)
 
-###########  AUTOMATE MAP   ####################################################################################################
+###########  AUTOMATE MAPS   ####################################################################################################
 
-adjacent_cells <- adjacent(maca, cells = cell, directions = 8) # Find cells around centroid
+# This section creates a series of maps from which the project lead can choose their favorite
+
+# NOTE: It does not seem to work to overlay the park layer onto the osm map and add transparency. You need to overlay the osm onto the park layer
+# and make the osm layer transparent. 
+
+tmap_mode('plot')
+
+# Maps with 25 MACA cells
+#"Directions" refers to the number of directions in which cells should be connected. 
+# 16 = knight and one-cell queen moves. See adjacent function for more info. 
+
+adjacent_cells <- adjacent(maca, cells = cell, directions = 16) # Find cells around centroid. 
 adjacent_cells <- rasterFromCells(maca, adjacent_cells) # Create new raster from cells
 adjacent_poly <- rasterToPolygons(adjacent_cells) # Convert raster to polygon so cell outlines are visible
 
 adjacent_poly <- spTransform(adjacent_poly, CRSobj = "+init=epsg:4326")
 
-tmap_mode('plot')
-osm <- tmaptools::read_osm(bb(adjacent_poly), type = "osm") # can try type = "bing" for satellite image if preferred
+map_types = c("bing", "osm", "stamen-terrain", "esri-topo", "apple-iphoto")
 
+for(i in 1:length(map_types)){
+  osm <- tmaptools::read_osm(bb(adjacent_poly), type = map_types[i])
+  map <- tm_shape(park) + tm_borders(col = "black", lwd = 3) + 
+    tm_fill(col = "darkgreen") + 
+    tm_shape(osm, is.master = TRUE) + tm_rgb(alpha = 0.8) +
+    tm_shape(adjacent_poly) + tm_borders(lwd = 3, col = "orange") + 
+    tm_shape(maca.poly, unit = "mi") + tm_borders(col = "#0000ff", lwd = 4) + 
+    tm_add_legend(type = "line", label = "MACA grid", col = "orange", lwd = 3) + 
+    tm_add_legend(type = "line", label = "Selected CMIP5 cell", col = "#0000ff", lwd = 4) +
+    tm_add_legend(type = "fill", label = "National Park", col = "darkgreen") +
+    tm_compass(type = "4star", position = c("right", "top"), size = 3, bg.color = "white") + tm_scale_bar(text.size = 0.75, breaks = c(0,1,2,3), bg.color = "white") +
+    tm_layout(legend.position = c("left", "bottom"), legend.stack = "vertical", legend.frame = TRUE, legend.bg.color = "white", legend.text.size = 1)
+  
+  tmap_save(map, filename = paste0(OutDir, site, "-MACA25-", map_types[i], ".png"))
+  
+}
 
-map <- tm_shape(osm) + tm_rgb() +
-  tm_shape(adjacent_poly) + tm_borders(lwd = 3) + 
-  tm_shape(maca.poly) + tm_borders(col = "#0000ff", lwd = 4) + 
-  tm_add_legend(type = "line", label = "MACA grid", col = "#56585B", lwd = 3) + 
-  tm_add_legend(type = "line", label = "Selected CMIP5 cell", col = "#0000ff", lwd = 4) +
-  tm_compass(position = c("right", "top"), size = 3) + tm_scale_bar(text.size = 0.75) +
-  tm_layout(legend.stack = "vertical", legend.frame = TRUE, legend.bg.color = "white", legend.text.size = 1)
+# Maps with 9 MACA cells 
 
-tmap_save(map, filename = paste(OutDir,site,"-Map.png"))
+adjacent_cells <- adjacent(maca, cells = cell, directions = 8) # Find cells around centroid. 8 = "Queen's case"
+adjacent_cells <- rasterFromCells(maca, adjacent_cells) # Create new raster from cells
+adjacent_poly <- rasterToPolygons(adjacent_cells) # Convert raster to polygon so cell outlines are visible
 
+adjacent_poly <- spTransform(adjacent_poly, CRSobj = "+init=epsg:4326")
 
+map_types = c("bing", "osm", "stamen-terrain", "esri-topo", "apple-iphoto")
 
-
-
-
-
+for(i in 1:length(map_types)){
+  osm <- tmaptools::read_osm(bb(adjacent_poly), type = map_types[i])
+  map <- tm_shape(park, name = "National Park") + 
+    tm_borders() +
+    tm_fill(col = "darkgreen") + 
+    tm_shape(osm, is.master = TRUE) + tm_rgb(alpha = 0.5) +
+    tm_shape(adjacent_poly) + tm_borders(lwd = 3, col = "orange") + 
+    tm_shape(maca.poly, unit = "mi") + tm_borders(col = "#0000ff", lwd = 4) + 
+    tm_add_legend(type = "line", label = "MACA grid", col = "orange", lwd = 3) + 
+    tm_add_legend(type = "line", label = "Selected CMIP5 cell", col = "#0000ff", lwd = 4) +
+    tm_add_legend(type = "fill", label = "National Park", col = "darkgreen", alpha = 0.5) +
+    tm_compass(type = "4star", position = c("right", "top"), size = 3, bg.color = "white") + tm_scale_bar(text.size = 0.75, breaks = c(0,1,2,3), bg.color = "white") +
+    tm_layout(legend.position = c("left", "bottom"), legend.stack = "vertical", legend.frame = TRUE, legend.bg.color = "white", legend.text.size = 1)
+  
+  tmap_save(map, filename = paste0(OutDir, site, "-MACA9-", map_types[i], ".png"))
+  
+}
 
 
