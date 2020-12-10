@@ -47,6 +47,7 @@ OutDir <- "C:/Users/adillon/Documents/RSS/PETE/" # Output directory. Ouput creat
 ###########################   END USER INPUTS   #################################################################################
 
 ###  Spatial Data  #####
+# This data is available from NPS
 
 # rasters - use proj4 to define projection
 
@@ -73,6 +74,8 @@ US_States <- st_transform(US_States, st_crs(maca))
 
 park <- filter(nps_boundary, UNIT_CODE == site)
 
+state <- filter(US_States, STATE_NAME == state)
+
 # TWO DIFFERENT OPTIONS FOR CENTROID - use 1st option if running a general RSS and using park centroid. Second option if using specific lat long.
 
 centroid <- filter(nps_centroids, UNIT_CODE == site) # use this line if using park centroid
@@ -83,11 +86,11 @@ centroid <- filter(nps_centroids, UNIT_CODE == site) # use this line if using pa
 #centroid <- st_set_crs(centroid, "+proj=longlat +datum=NAD83 +no_defs")
 #centroid <- st_transform(centroid, st_crs(maca))
 
-state <- filter(US_States, STATE_NAME == state)
 
 #########################     END USER INPUTS   ##################################################################################
 
 # Check that spatial data looks OK so far. Precise projection doesn't matter at this point but should be close. 
+# You should see the park outline by itself, and also where it lies within the state.
 
 state_and_park <- tm_shape(state) +
   tm_borders() + 
@@ -107,12 +110,11 @@ tmap_arrange(state_and_park, park_and_centroid)
 # Obtain MACA grid outline (not information within)
 
 centroid<- as_Spatial(centroid) # objects must be Spatial (sp) to work with raster package (cannot be sf)
-#centroid <- SpatialPoints(centroid) # Converts to point object instead of df
 cell <- cellFromXY(maca, centroid) # find grid cell park centroid lies within
 maca_cell <- rasterFromCells(maca, cell) # create stand-alone raster for single MACA cell
 maca.poly <- rasterToPolygons(maca_cell) # Create MACA polygon - original file in lat/long (note: datum differs from park shapefiles)
 
-# Plot
+# Plot to see that MACA cell is visible and appropriately located within park
 
 tm_shape(park) + 
   tm_borders() + 
@@ -132,7 +134,7 @@ aspect <- terrain(dem, opt = "aspect", unit = "degrees")
 # get 10 random points from soil raster and create SpatialPoints object
 points <- spsample(maca.poly, n = 10, type = "random")
 
-# plot to check points in MACA cell
+# plot to check points appear within borders of MACA cell. 
 
 tm_shape(park) + 
   tm_borders() + 
@@ -164,13 +166,13 @@ sites <- select(sites, 7,2,1,3:6, 8:11) # reorder columns
 colnames(sites) <- c("SiteID", "Lat", "Lon", "Elev", "Aspect", "Slope", "SWC.Max", "Wind", "Snowpack", "Soil.Init", "Shade.Coeff")
 
 sites$SWC.Max = sites$SWC.Max*10 # convert units for Soil Water-holding capacity
-sites # check 
+sites # check to be sure values are populated correctly. There should not be NA values. 
 
 write.csv(sites, file =  paste0(OutDir, site, "_site_characteristics.csv"), row.names = FALSE)
 
 ###########  AUTOMATE MAPS   ####################################################################################################
 
-# This section creates a series of maps from which the project lead can choose their favorite
+# This section creates a series of maps from which the project lead can choose a favorite
 
 # NOTE: It does not seem to work to overlay the park layer onto the osm map and add transparency. You need to overlay the osm onto the park layer
 # and make the osm layer transparent. 
@@ -187,7 +189,9 @@ adjacent_poly <- rasterToPolygons(adjacent_cells) # Convert raster to polygon so
 
 adjacent_poly <- spTransform(adjacent_poly, CRSobj = "+init=epsg:4326")
 
-map_types = c("bing", "osm", "stamen-terrain", "esri-topo", "apple-iphoto")
+map_types = c("bing", "osm", "stamen-terrain", "esri-topo", "apple-iphoto") # map types can be found here: https://www.rdocumentation.org/packages/OpenStreetMap/versions/0.3.4/topics/openmap
+
+# Loop that creates series of maps with 25 MACA cells
 
 for(i in 1:length(map_types)){
   osm <- tmaptools::read_osm(bb(adjacent_poly), type = map_types[i])
@@ -206,7 +210,7 @@ for(i in 1:length(map_types)){
   
 }
 
-# Maps with 9 MACA cells 
+# Loop that creates maps with 9 MACA cells 
 
 adjacent_cells <- adjacent(maca, cells = cell, directions = 8) # Find cells around centroid. 8 = "Queen's case"
 adjacent_cells <- rasterFromCells(maca, adjacent_cells) # Create new raster from cells
