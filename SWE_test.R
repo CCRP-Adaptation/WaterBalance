@@ -36,10 +36,10 @@ get_freeze_jennings = function(tmean, high_thresh_temperature, low_thresh_temper
   return(freeze)
 }
 
-low_thresh_temperature = params$Jennings.Coeff - 3 # This sets up a 6 degree span, which corresponds to the 1/6 = 0.167 precip fraction.
-high_thresh_temperature = params$Jennings.Coeff + 3
+low_thresh_temperature = -0.8444  # This sets up a 6 degree span, which corresponds to the 1/6 = 0.167 precip fraction.
+high_thresh_temperature = 5.15558 # the first # came from the provided params 
 
-frog$freeze <- get_freeze_jennings(frog$tmean, high_thresh_temperature, low_thresh_temperature)
+frog_input$freeze <- get_freeze_jennings(frog_input$tmean, high_thresh_temperature, low_thresh_temperature)
 
 #' Snow
 #'
@@ -49,12 +49,8 @@ frog$freeze <- get_freeze_jennings(frog$tmean, high_thresh_temperature, low_thre
 #' @export
 #' get_snow()
 
-get_snow = function(ppt, freeze){
-  snow = (1 - freeze)*ppt
-  return(snow)
-}
 
-frog$snow <- get_snow(frog$prcp, freeze)
+frog_input$snow <- (1-frog_input$freeze)*frog_input$prcp
 
 
 #' Snowpack
@@ -76,7 +72,7 @@ get_snowpack = function(ppt, freeze, p.0=NULL){
   return(snowpack)
 }
 
-frog$pack <- get_snowpack(frog$prcp, freeze, p.0 = NULL)
+frog_input$pack <- get_snowpack(frog_input$prcp, frog_input$freeze, p.0 = NULL)
 
 #' Melt
 #'
@@ -98,7 +94,6 @@ get_melt = function(snowpack, snow, freeze, p.0=NULL){
   return(melt)
 }
 
-frog$melt <- get_melt(pack, snow, freeze, p.0 = NULL)
+frog_input$melt <- get_melt(frog_input$pack, frog_input$snow, frog_input$freeze, p.0 = NULL)
 
-write.csv(pack, "C:/Users/adillon/Documents/Water_Balance_Update/SWE/pack_R.csv")
-
+write.csv(frog_input, "C:/Users/msears/OneDrive - DOI/WB-cross check/SWE_output")
