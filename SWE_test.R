@@ -14,11 +14,10 @@ library(dplyr)
 
 # ------ Load and prep data ----------------------------------------------------------------- #
 
-frog_input <- read.csv("C:/Users/msears/OneDrive - DOI/WB-cross check/Frogrock_data.csv")
+frog <- read.csv("C:/Users/msears/OneDrive - DOI/WB-cross check/FrogRock-inputforR.csv")
 
-colnames(frog_input) <- c("year", "yday", "dayl", "prcp", "srad", "swe", "tmaxC", "tminC", "vp", "soilWHC", "slope", "aspect", "jennings", "hock", "GDDbase", "shadecoeff","%runoff")
-
-frog_input$tmean <- (frog_input$tmaxC + frog_input$tminC)/2
+frog <- frog %>%
+  mutate(tmean = (tmin_degC+tmax_degC)/2)
 
 # ----- Functions ------------------------------------------------------------------------------ #
 
@@ -31,15 +30,15 @@ frog_input$tmean <- (frog_input$tmaxC + frog_input$tminC)/2
 #' @export
 #' get_freeze()
 
-get_freeze_jennings = function(tmean, high_thresh_temperature, low_thresh_temperature){ # redefining get_freeze to incorporate Jennings Coefficient (* double check R will pull 'global' function and not package function)
+get_freeze_jennings = function(tmean, high_thresh_temperature, low_thresh_temperature){ 
   freeze = ifelse(tmean <= low_thresh_temperature, 0, ifelse(tmean >= high_thresh_temperature, 1, (1/(high_thresh_temperature - low_thresh_temperature))*(tmean - low_thresh_temperature)))
   return(freeze)
 }
 
-low_thresh_temperature = -0.8444  # This sets up a 6 degree span, which corresponds to the 1/6 = 0.167 precip fraction.
-high_thresh_temperature = 5.15558 # the first # came from the provided params 
+low_thresh_temperature = (2.155578-3.0) # the first numbers in these lines come from D. Thoma's parameter/input Frog Rock xlsx
+high_thresh_temperature = (2.15578+3.0) 
 
-frog_input$freeze <- get_freeze_jennings(frog_input$tmean, high_thresh_temperature, low_thresh_temperature)
+frog$freeze <- get_freeze_jennings(frog$tmean, high_thresh_temperature, low_thresh_temperature)
 
 #' Snow
 #'
