@@ -100,19 +100,22 @@ get_melt = function(tmean,j_temp, hock, snow, sp.0=NULL){
 
 #' Snowpack
 #'
-#' Calculates snowpack accumulation at time steps, from a time series of precipitation values, freeze factor, and an initial snowpack value
-#' @param ppt A vector of precipitation values.
-#' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
-#' @param p.0 (optional) Initial snowpack value. Default is 0.
+#' Calculates snowpack accumulation at time steps, from a time series of snowfall and melt.
+#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude
+#' @param low_thresh_temp the Jennings coefficient minus 3 degrees C.
+#' @param snow A time series vector of snowfall values.
+#' @param melt A time series vector of snowmelt.
+#' @param sp.0 (optional) Initial snowpack value. Default is 0.
 #' @export
 #' get_snowpack()
 
-get_snowpack = function(ppt, freeze, p.0=NULL){
-  p.i = ifelse(!is.null(p.0), p.0, 0)
-  snowpack = c()
-  for(i in 1:length(ppt)){
-    snowpack[i] = ((1-freeze[i])^2)*ppt[i] + (1-freeze[i])*p.i
-    p.i = snowpack[i]
+get_snowpack = function(j_temp, snow, melt, sp.0=NULL){
+  low_thresh_temp = j_temp - 3
+  sp.i = ifelse(!is.null(sp.0), sp.0, 0)
+  snowpack <- vector()
+  for(i in 1:length(melt)){
+    snowpack[i] = sp.i+snow[i]-melt[i]
+    sp.i=snowpack[i]
   }
   return(snowpack)
 }
