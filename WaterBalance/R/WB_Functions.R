@@ -22,15 +22,21 @@ get_jtemp = function(Lon, Lat){
   return(j_temp)
 }
 
-#' Freeze factor
+#' Freeze factor using Jennings et al. 2018 thresholds to partition rain and snow
 #'
-#' Calculates a freeze factor from 0-1 based on mean temperature
+#' Calculates a freeze factor from 0-1 based on a temperature threshold from Jennings et al. 2018 and average temperature.
+#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude
 #' @param tmean A vector of daily mean temperatures (deg C).
 #' @export
 #' get_freeze()
 
-get_freeze = function(tmean){
-  freeze = ifelse(tmean > 6, 1, ifelse(tmean < 0, 0, tmean*(1/6)))
+get_freeze = function(j_temp, tmean){
+  low_thresh_temp = j_temp - 3
+  high_thresh_temp = j_temp + 3
+  freeze = ifelse(
+    tmean <= low_thresh_temp, 0, 
+    ifelse(tmean >= high_thresh_temp,
+           1, (0.167*(tmean-low_thresh_temp))))
   return(freeze)
 }
 
