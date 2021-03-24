@@ -157,6 +157,19 @@ get_w = function(rain, melt){
   return(w)
 }
 
+#' Water reaching soil surface minus PET
+#'
+#' Calculates water reaching soil surface minues the PET.
+#' @param w A time series vector of water reaching soil surface as snow plus rain
+#' @param pet A time series vector of PET values.
+#' @export
+#' get_w_pet()
+
+get_w_pet = function(w, pet){
+  w_pet = (w-pet)
+  return(w_pet)
+}
+
 #' Soil Water Content (SWC)
 #'
 #' Calculates soil water content from available water (rain + snowmelt), PET, max. water-holding capacity, and initial SWC.
@@ -167,14 +180,14 @@ get_w = function(rain, melt){
 #' @export
 #' get_soil()
 
-get_soil = function(w, pet, swc.max, swc.0){
-  swc.i = ifelse(!is.null(swc.0), swc.0, 0)
-  soil = c()
-  for(i in 1:length(w)){
-    soil[i] = ifelse(w[i] > pet[i], min(w[i]-pet[i]+swc.i, swc.max), swc.i*exp(-(pet[i]-w[i])/swc.max))
-    swc.i = soil[i]
+get_soil = function(w, swc.0=NULL, pet, w_pet, swc.max){
+  swc.i = ifelse(!is.null(swc.0), swc.0,0)
+  soil=c()
+  for(i in 1:length(pet)){
+    soil[i] = ifelse(w[i]>pet[i], min((w_pet[i]+swc.i),swc.max), swc.i-swc.i*(1-exp(-(pet[i]-w[i])/swc.max)))
+    swc.i=soil[i]
   }
-  return(soil)
+  return(soil)  
 }
 
 #' Actual Evapotranspiration (AET)
