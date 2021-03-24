@@ -1,8 +1,8 @@
 ###################################################################################
 ## WB_functions.R
 ## Functions to calculate water balance variables from input climate data. Based on Dave Thoma's water balance Excel spreadsheet model.
-## Created 10/30/2019 by ARC
-## v01
+## Created 10/30/2019 by ARC, Updated 3/24/21 by MGS
+## v1.1.0
 ###################################################################################
 
 #' Freeze factor
