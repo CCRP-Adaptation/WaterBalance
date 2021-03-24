@@ -66,6 +66,38 @@ get_snow = function(ppt, freeze){
   return(snow)
 }
 
+#' Melt
+#'
+#' Calculates the amount of snowmelt at time steps from snowpack, temperature, and Hock melt factor
+#' @param tmean A vector of daily mean temperatures (deg C).
+#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude
+#' @param hock A melt factor of daily snowmelt when warm enough to melt.
+#' @param snow A time series vector of snowfall values.
+#' @param snowpack A time series vector of snowpack accumulation values. Initial snowpack default value is 0.
+#' @export
+#' get_melt()
+
+get_melt = function(tmean,j_temp, hock, snow, sp.0=NULL){
+  sp.0 = ifelse(!is.null(sp.0), sp.0, 0)
+  low_thresh_temp = j_temp - 3
+  melt <- vector()
+  for (i in 1:1){
+    melt[i] = ifelse(tmean[i]<low_thresh_temp||sp.0==0, 0, 
+                     ifelse(((tmean[i]-low_thresh_temp)*hock[i])>sp.0, 
+                            sp.0, ((tmean[i]-low_thresh_temp)*hock[i])))
+  }
+  snowpack = sp.0+snow+melt
+  for(i in 2:length(tmean)){
+    for (j in 2:(length(tmean))){
+      melt[i] = ifelse(tmean[i]<low_thresh_temp||snowpack[i-1]==0, 0, 
+                       ifelse(((tmean[i]-low_thresh_temp)*hock[i])>snowpack[i-1], 
+                              snowpack[i-1], ((tmean[i]-low_thresh_temp)*hock[i])))
+      snowpack[j] = snowpack[j-1]+snow[j]-melt[j]
+    }
+  }
+  return(melt)
+}
+
 #' Snowpack
 #'
 #' Calculates snowpack accumulation at time steps, from a time series of precipitation values, freeze factor, and an initial snowpack value
@@ -83,26 +115,6 @@ get_snowpack = function(ppt, freeze, p.0=NULL){
     p.i = snowpack[i]
   }
   return(snowpack)
-}
-
-#' Melt
-#'
-#' Calculates the amount of snowmelt at time steps from snowpack, snowfall, and freeze factor.
-#' @param snowpack A time series vector of snowpack accumulation values.
-#' @param snow A time series vector of snowfall values.
-#' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
-#' @param p.0 (optional) Initial snowpack value. Default is 0.
-#' @export
-#' get_snowpack()
-
-get_melt = function(snowpack, snow, freeze, p.0=NULL){
-  p.i = ifelse(!is.null(p.0), p.0, 0)
-  melt = c()
-  for(i in 1:length(snowpack)){
-    melt[i] = freeze[i]*(p.i + snow[i])
-    p.i = snowpack[i]
-  }
-  return(melt)
 }
 
 #' Modify PET
