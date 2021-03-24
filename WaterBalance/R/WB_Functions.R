@@ -214,7 +214,7 @@ get_d_soil=function(swc, swc.0=NULL){
 #' @export
 #' get_AET()
 
-get_AET = function(w, pet, swc, swc.0){
+get_AET = function(w, pet, swc, swc.0=NULL){
   swc.i = ifelse(!is.null(swc.0), swc.0, 0)
   AET = c()
   for(i in 1:length(w)){
@@ -264,8 +264,8 @@ get_deficit=function(pet, AET){
 #' @export
 #' get_GDD()
 
-get_GDD = function(tmean, tbase){
+get_GDD = function(tmean, tbase=NULL){
   tb = ifelse(!is.null(tbase), tbase, 0)
-  GDD = ifelse(tmean < tbase, 0, tmean - tb)
+  GDD = ifelse(tmean < tb, 0, tmean - tb)
   return(GDD)
 }
