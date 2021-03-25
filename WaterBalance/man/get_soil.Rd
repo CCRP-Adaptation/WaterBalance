@@ -4,16 +4,16 @@
 \alias{get_soil}
 \title{Soil Water Content (SWC)}
 \usage{
-get_soil(w, pet, swc.max, swc.0)
+get_soil(w, swc.0 = NULL, pet, w_pet, swc.max)
 }
 \arguments{
 \item{w}{A time series vector of available water for soil charging (rain + snowmelt).}
 
+\item{swc.0}{(optional) The initial soil water content value. Default is 0.}
+
 \item{pet}{A time series vector of PET.}
 
 \item{swc.max}{The maximum soil water-holding capacity of the soil layer being assessed.}
-
-\item{swc.0}{(optional) The initial soil water content value. Default is 0.}
 }
 \description{
 Calculates soil water content from available water (rain + snowmelt), PET, max. water-holding capacity, and initial SWC.

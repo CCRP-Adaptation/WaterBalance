@@ -4,15 +4,19 @@
 \alias{get_snowpack}
 \title{Snowpack}
 \usage{
-get_snowpack(ppt, freeze, p.0 = NULL)
+get_snowpack(j_temp, snow, melt, sp.0 = NULL)
 }
 \arguments{
-\item{ppt}{A vector of precipitation values.}
+\item{j_temp}{the Jennings temperature extracted from the raster based on latitude and longitude}
 
-\item{freeze}{A vector of freeze factor values, calculated from Tmean. Values are 0-1.}
+\item{snow}{A time series vector of snowfall values.}
 
-\item{p.0}{(optional) Initial snowpack value. Default is 0.}
+\item{melt}{A time series vector of snowmelt.}
+
+\item{sp.0}{(optional) Initial snowpack value. Default is 0.}
+
+\item{low_thresh_temp}{the Jennings coefficient minus 3 degrees C.}
 }
 \description{
-Calculates snowpack accumulation at time steps, from a time series of precipitation values, freeze factor, and an initial snowpack value
+Calculates snowpack accumulation at time steps, from a time series of snowfall and melt.
 }

@@ -4,17 +4,19 @@
 \alias{get_melt}
 \title{Melt}
 \usage{
-get_melt(snowpack, snow, freeze, p.0 = NULL)
+get_melt(tmean, j_temp, hock, snow, sp.0 = NULL)
 }
 \arguments{
-\item{snowpack}{A time series vector of snowpack accumulation values.}
+\item{tmean}{A vector of daily mean temperatures (deg C).}
+
+\item{j_temp}{the Jennings temperature extracted from the raster based on latitude and longitude}
+
+\item{hock}{A melt factor of daily snowmelt when warm enough to melt.}
 
 \item{snow}{A time series vector of snowfall values.}
 
-\item{freeze}{A vector of freeze factor values, calculated from Tmean. Values are 0-1.}
-
-\item{p.0}{(optional) Initial snowpack value. Default is 0.}
+\item{snowpack}{A time series vector of snowpack accumulation values. Initial snowpack default value is 0.}
 }
 \description{
-Calculates the amount of snowmelt at time steps from snowpack, snowfall, and freeze factor.
+Calculates the amount of snowmelt at time steps from snowpack, temperature, and Hock melt factor
 }

@@ -4,7 +4,7 @@
 \alias{modify_PET}
 \title{Modify PET}
 \usage{
-modify_PET(pet, slope, aspect, lat, shade.coeff = NULL)
+modify_PET(pet, slope, aspect, lat, freeze, shade.coeff = NULL)
 }
 \arguments{
 \item{pet}{A time series vector of PET values.}
@@ -14,6 +14,8 @@ modify_PET(pet, slope, aspect, lat, shade.coeff = NULL)
 \item{aspect}{Aspect of the site (in degrees).}
 
 \item{lat}{Latitude of the site (in degrees).}
+
+\item{freeze}{A vector of freeze factor values, calculated from Tmean. Values are 0-1.}
 
 \item{shade.coeff}{(optional) A shade coefficient from 0-1. Default is 1.}
 }

@@ -4,7 +4,7 @@
 \alias{get_GDD}
 \title{Growing Degree-Days}
 \usage{
-get_GDD(tmean, tbase)
+get_GDD(tmean, tbase = NULL)
 }
 \arguments{
 \item{tmean}{A time series vector of daily mean temperatures (deg C)}

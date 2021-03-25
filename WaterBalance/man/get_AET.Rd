@@ -4,7 +4,7 @@
 \alias{get_AET}
 \title{Actual Evapotranspiration (AET)}
 \usage{
-get_AET(w, pet, swc, swc.0)
+get_AET(w, pet, swc, swc.0 = NULL)
 }
 \arguments{
 \item{w}{A time series vector of available water for soil charging (rain + snowmelt).}
