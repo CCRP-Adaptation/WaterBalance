@@ -13,7 +13,7 @@
 #' @export
 #' get_jtemp()
 
-get_jtemp = function(Lon, Lat){
+get_jtemp = function(Lat, Lon){
   j.raster = raster::raster(system.file("extdata","merged_jennings2.tif", package="WaterBalance")) 
   projection = sp::CRS("+init=epsg:4326")
   coords = cbind(Lat, Lon)
