@@ -5,11 +5,11 @@
 ## v1.1.0
 ###################################################################################
 
-#' Temperature threshold using Jennings et al. 2018 to partition rain and snow
+#' Temperature threshold using Jennings et al., 2018 to partition rain and snow
 #'
 #' Extracts the rain-snow temperature threshold from a raster.
-#' @param Lon Longitude of the site (degrees).
 #' @param Lat Latitude of the site (degrees).
+#' @param Lon Longitude of the site (degrees).
 #' @export
 #' get_jtemp()
 
@@ -24,8 +24,8 @@ get_jtemp = function(Lat, Lon){
 
 #' Freeze factor using Jennings et al. 2018 thresholds to partition rain and snow
 #'
-#' Calculates a freeze factor from 0-1 based on a temperature threshold from Jennings et al. 2018 and average temperature.
-#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude
+#' Calculates a freeze factor from 0-1 based on a temperature threshold from Jennings et al., 2018 and average temperature.
+#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude.
 #' @param tmean A vector of daily mean temperatures (deg C).
 #' @export
 #' get_freeze()
@@ -42,9 +42,9 @@ get_freeze = function(j_temp, tmean){
 
 #' Rain
 #'
-#' Calculates rainfall totals based on precipitation and freeze factor
+#' Calculates rainfall totals based on precipitation and freeze factor.
 #' @param ppt A vector of precipitation values.
-#' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
+#' @param freeze A vector of freeze factor values, calculated from Tmean and Jennings et al., 2018. Values are 0-1.
 #' @export
 #' get_rain()
 
@@ -55,9 +55,9 @@ get_rain = function(ppt, freeze){
 
 #' Snow
 #'
-#' Calculates snowfall totals based on precipitation and freeze factor
+#' Calculates snowfall totals based on precipitation and freeze factor.
 #' @param ppt A vector of precipitation values.
-#' @param freeze A vector of freeze factor values, calculated from Tmean. Values are 0-1.
+#' @param freeze A vector of freeze factor values, calculated from Tmean and Jennings et al., 2018. Values are 0-1.
 #' @export
 #' get_snow()
 
@@ -70,7 +70,7 @@ get_snow = function(ppt, freeze){
 #'
 #' Calculates the amount of snowmelt at time steps from snowpack, temperature, and Hock melt factor
 #' @param tmean A vector of daily mean temperatures (deg C).
-#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude
+#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude.
 #' @param hock A melt factor of daily snowmelt when warm enough to melt.
 #' @param snow A time series vector of snowfall values.
 #' @param snowpack A time series vector of snowpack accumulation values. Initial snowpack default value is 0.
@@ -101,7 +101,7 @@ get_melt = function(tmean,j_temp, hock, snow, sp.0=NULL){
 #' Snowpack
 #'
 #' Calculates snowpack accumulation at time steps, from a time series of snowfall and melt.
-#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude
+#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude.
 #' @param low_thresh_temp the Jennings coefficient minus 3 degrees C.
 #' @param snow A time series vector of snowfall values.
 #' @param melt A time series vector of snowmelt.
@@ -122,7 +122,7 @@ get_snowpack = function(j_temp, snow, melt, sp.0=NULL){
 
 #' Modify PET
 #'
-#' Modifies PET by heat load according to method by Lutz et al. (2010)
+#' Modifies PET by heat load according to method by Lutz et al. (2010).
 #' @param pet A time series vector of PET values.
 #' @param slope Slope of the site (in degrees).
 #' @param aspect Aspect of the site (in degrees).
@@ -160,7 +160,7 @@ get_w = function(rain, melt){
 #' Water reaching soil surface minus PET
 #'
 #' Calculates water reaching soil surface minues the PET.
-#' @param w A time series vector of water reaching soil surface as snow plus rain
+#' @param w A time series vector of water reaching soil surface as snow plus rain.
 #' @param pet A time series vector of PET values.
 #' @export
 #' get_w_pet()
@@ -229,7 +229,7 @@ get_AET = function(w, pet, swc, swc.0=NULL){
 #' Calculates runoff at daily timesteps based on water reaching soil surface, AET, change in soil moisture, and a runoff coefficient
 #' @param ppt A vector of precipitation values.
 #' @param w A time series vector of available water for soil charging (rain + snowmelt).
-#' @param D_soil A time series vector of change in soil moisture from previous day.
+#' @param d_soil A time series vector of change in soil moisture from previous day.
 #' @param AET A time series vector of actual evapotranspiration.
 #' @param DRO A time series vector of direct runoff or fraction of precipitation shunted to runoff.
 #' @param R.coeff A fraction of precpitation that can be shunted to direct runoff.
@@ -258,8 +258,8 @@ get_deficit=function(pet, AET){
 
 #' Growing Degree-Days
 #'
-#' Calculates growing degree-days at daily time steps based on mean temperature and a threshold temperature
-#' @param tmean A time series vector of daily mean temperatures (deg C)
+#' Calculates growing degree-days at daily time steps based on mean temperature and a threshold temperature.
+#' @param tmean A time series vector of daily mean temperatures (deg C).
 #' @param tbase (optional) A threshold temperature, above which growing degree-days are calculated. Default is 0.
 #' @export
 #' get_GDD()
