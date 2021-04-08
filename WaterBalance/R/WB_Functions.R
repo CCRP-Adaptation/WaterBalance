@@ -73,27 +73,26 @@ get_snow = function(ppt, freeze){
 #' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude.
 #' @param hock A melt factor of daily snowmelt when warm enough to melt.
 #' @param snow A time series vector of snowfall values.
-#' @param snowpack A time series vector of snowpack accumulation values. Initial snowpack default value is 0.
+#' @param sp.0 (optional) Initial snowpack value. Default is 0.
 #' @export
 #' get_melt()
 
 get_melt = function(tmean,j_temp, hock, snow, sp.0=NULL){
   sp.0 = ifelse(!is.null(sp.0), sp.0, 0)
   low_thresh_temp = j_temp - 3
+  melt_delta = (tmean-low_thresh_temp)*hock
   melt <- vector()
   for (i in 1:1){
     melt[i] = ifelse(tmean[i]<low_thresh_temp||sp.0==0, 0, 
-                     ifelse(((tmean[i]-low_thresh_temp)*hock[i])>sp.0, 
-                            sp.0, ((tmean[i]-low_thresh_temp)*hock[i])))
+                     ifelse(melt_delta[i]>sp.0, 
+                            sp.0, melt_delta[i]))
   }
   snowpack = sp.0+snow+melt
   for(i in 2:length(tmean)){
-    for (j in 2:(length(tmean))){
-      melt[i] = ifelse(tmean[i]<low_thresh_temp||snowpack[i-1]==0, 0, 
-                       ifelse(((tmean[i]-low_thresh_temp)*hock[i])>snowpack[i-1], 
-                              snowpack[i-1], ((tmean[i]-low_thresh_temp)*hock[i])))
-      snowpack[j] = snowpack[j-1]+snow[j]-melt[j]
-    }
+    melt[i] = ifelse(tmean[i]<low_thresh_temp||snowpack[i-1]==0, 0, 
+                     ifelse(melt_delta[i]>snowpack[i-1], 
+                            snowpack[i-1], melt_delta[i]))
+    snowpack[i] = snowpack[i-1]+snow[i]-melt[i]
   }
   return(melt)
 }
