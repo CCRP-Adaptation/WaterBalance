@@ -1,7 +1,8 @@
 ###################################################################################
 ## WB_functions.R
-## Functions to calculate water balance variables from input climate data. Based on Dave Thoma's water balance Excel spreadsheet model.
-## Created 10/30/2019 by ARC, Updated 3/24/21 by MGS
+## Functions to calculate water balance variables from input climate data. 
+## Based on Dave Thoma's water balance Excel spreadsheet model.
+## Created 10/30/2019 by ARC, Updated 4/14/21 by MGS
 ## v1.1.0
 ###################################################################################
 
@@ -18,25 +19,29 @@ get_jtemp = function(Lat, Lon){
   projection = sp::CRS("+init=epsg:4326")
   coords = cbind(Lat, Lon)
   sp = sp::SpatialPoints(coords, proj4string = projection)
-  j_temp = raster::extract(j.raster, sp)
-  return(j_temp)
+  jtemp = raster::extract(j.raster, sp)
+  return(jtemp)
 }
 
-#' Freeze factor using Jennings et al. 2018 thresholds to partition rain and snow
+#' Freeze factor using Jennings et al., 2018 thresholds to partition rain and snow
 #'
 #' Calculates a freeze factor from 0-1 based on a temperature threshold from Jennings et al., 2018 and average temperature.
-#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude.
+#' @param jtemp the Jennings temperature extracted from the raster based on latitude and longitude.
 #' @param tmean A vector of daily mean temperatures (deg C).
 #' @export
 #' get_freeze()
 
-get_freeze = function(j_temp, tmean){
-  low_thresh_temp = j_temp - 3
-  high_thresh_temp = j_temp + 3
-  freeze = ifelse(
-    tmean <= low_thresh_temp, 0, 
-    ifelse(tmean >= high_thresh_temp,
-           1, (0.167*(tmean-low_thresh_temp))))
+get_freeze = function(jtemp, tmean){
+  freeze <- vector()
+  freeze[1] = ifelse(tmean[1]<= (jtemp[1]-3),0,
+                     ifelse(tmean[1]>=(jtemp[1]+3),1,
+                            (1/((jtemp[1]+3) - (jtemp[1]-3)))*(tmean[1]-(jtemp[1]-3))))
+  for(i in 2:length(tmean)){
+    freeze[i] = ifelse(
+      tmean[i] <= (jtemp[i]-3), 0, 
+      ifelse(tmean[i] >= (jtemp[i]+3),
+             1, (0.167*(tmean[i]-(jtemp[i]-3)))))
+  }
   return(freeze)
 }
 
@@ -44,7 +49,7 @@ get_freeze = function(j_temp, tmean){
 #'
 #' Calculates rainfall totals based on precipitation and freeze factor.
 #' @param ppt A vector of precipitation values.
-#' @param freeze A vector of freeze factor values, calculated from Tmean and Jennings et al., 2018. Values are 0-1.
+#' @param freeze A vector of freeze factor values, calculated from average temperature and Jennings et al., 2018. Values are 0-1.
 #' @export
 #' get_rain()
 
@@ -57,7 +62,7 @@ get_rain = function(ppt, freeze){
 #'
 #' Calculates snowfall totals based on precipitation and freeze factor.
 #' @param ppt A vector of precipitation values.
-#' @param freeze A vector of freeze factor values, calculated from Tmean and Jennings et al., 2018. Values are 0-1.
+#' @param freeze A vector of freeze factor values, calculated from average temperature and Jennings et al., 2018. Values are 0-1.
 #' @export
 #' get_snow()
 
@@ -68,27 +73,27 @@ get_snow = function(ppt, freeze){
 
 #' Melt
 #'
-#' Calculates the amount of snowmelt at time steps from snowpack, temperature, and Hock melt factor
+#' Calculates the amount of snowmelt at time steps from snowpack, temperature, and Hock melt factor.
 #' @param tmean A vector of daily mean temperatures (deg C).
-#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude.
+#' @param jtemp the Jennings temperature extracted from the raster based on latitude and longitude.
 #' @param hock A melt factor of daily snowmelt when warm enough to melt.
 #' @param snow A time series vector of snowfall values.
 #' @param sp.0 (optional) Initial snowpack value. Default is 0.
 #' @export
 #' get_melt()
 
-get_melt = function(tmean,j_temp, hock, snow, sp.0=NULL){
+get_melt = function(tmean, jtemp, hock, snow, sp.0=NULL){
   sp.0 = ifelse(!is.null(sp.0), sp.0, 0)
   melt <- vector()
-  melt[1] = ifelse(tmean[1] < (j_temp[1]-3)||sp.0==0, 0,
-                   ifelse((tmean[1]-(j_temp[1]-3))*hock>sp.0, 
-                          sp.0, (tmean[1]-(j_temp[1]-3))*hock))
+  melt[1] = ifelse(tmean[1] < (jtemp[1]-3)||sp.0==0, 0,
+                   ifelse((tmean[1]-(jtemp[1]-3))*hock>sp.0, 
+                          sp.0, (tmean[1]-(jtemp[1]-3))*hock))
   snowpack <- vector()
   snowpack[1] = sp.0 + snow[1] - melt[1]
   for(i in 2:length(tmean)){
-    melt[i] = ifelse(tmean[i]<(j_temp[i]-3) | snowpack[i-1]==0, 0, 
-                     ifelse((tmean[i]-(j_temp[i]-3))*hock>snowpack[i-1], 
-                            snowpack[i-1], (tmean[i]-(j_temp[i]-3))*hock))
+    melt[i] = ifelse(tmean[i]<(jtemp[i]-3) | snowpack[i-1]==0, 0, 
+                     ifelse((tmean[i]-(jtemp[i]-3))*hock>snowpack[i-1], 
+                            snowpack[i-1], (tmean[i]-(jtemp[i]-3))*hock))
     snowpack[i] = snowpack[i-1]+snow[i]-melt[i]
   }
   return(melt)
@@ -97,16 +102,15 @@ get_melt = function(tmean,j_temp, hock, snow, sp.0=NULL){
 #' Snowpack
 #'
 #' Calculates snowpack accumulation at time steps, from a time series of snowfall and melt.
-#' @param j_temp the Jennings temperature extracted from the raster based on latitude and longitude.
-#' @param low_thresh_temp the Jennings coefficient minus 3 degrees C.
+#' @param jtemp the Jennings temperature extracted from the raster based on latitude and longitude.
 #' @param snow A time series vector of snowfall values.
 #' @param melt A time series vector of snowmelt.
 #' @param sp.0 (optional) Initial snowpack value. Default is 0.
 #' @export
 #' get_snowpack()
 
-get_snowpack = function(j_temp, snow, melt, sp.0=NULL){
-  low_thresh_temp = j_temp - 3
+get_snowpack = function(jtemp, snow, melt, sp.0=NULL){
+  low_thresh_temp = jtemp - 3
   sp.i = ifelse(!is.null(sp.0), sp.0, 0)
   snowpack <- vector()
   for(i in 1:length(melt)){
@@ -171,6 +175,7 @@ get_w_pet = function(w, pet){
 #' Calculates soil water content from available water (rain + snowmelt), PET, max. water-holding capacity, and initial SWC.
 #' @param w  A time series vector of available water for soil charging (rain + snowmelt).
 #' @param pet A time series vector of PET.
+#' @param w_pet A time series vector of the difference between w and pet.
 #' @param swc.max The maximum soil water-holding capacity of the soil layer being assessed.
 #' @param swc.0 (optional) The initial soil water content value. Default is 0.
 #' @export
@@ -227,7 +232,6 @@ get_AET = function(w, pet, swc, swc.0=NULL){
 #' @param w A time series vector of available water for soil charging (rain + snowmelt).
 #' @param d_soil A time series vector of change in soil moisture from previous day.
 #' @param AET A time series vector of actual evapotranspiration.
-#' @param DRO A time series vector of direct runoff or fraction of precipitation shunted to runoff.
 #' @param R.coeff A fraction of precpitation that can be shunted to direct runoff.
 #' @export
 #' get_runoff()
