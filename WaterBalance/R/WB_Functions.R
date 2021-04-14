@@ -81,15 +81,15 @@ get_melt = function(tmean,j_temp, hock, snow, sp.0=NULL){
   sp.0 = ifelse(!is.null(sp.0), sp.0, 0)
   low_thresh_temp = j_temp - 3
   melt_delta = (tmean-low_thresh_temp)*hock
+  melt_delta = ifelse(melt_delta < 0, 0, melt_delta)
   melt <- vector()
-  for (i in 1:1){
-    melt[i] = ifelse(tmean[i]<low_thresh_temp||sp.0==0, 0, 
-                     ifelse(melt_delta[i]>sp.0, 
-                            sp.0, melt_delta[i]))
-  }
-  snowpack = sp.0+snow+melt
+  melt[1] = ifelse(tmean[1] < low_thresh_temp||sp.0==0, 0,
+                   ifelse(melt_delta[1]>sp.0, 
+                          sp.0, melt_delta[1]))
+  snowpack <- vector()
+  snowpack[1] = sp.0 + snow[1] - melt[1]
   for(i in 2:length(tmean)){
-    melt[i] = ifelse(tmean[i]<low_thresh_temp||snowpack[i-1]==0, 0, 
+    melt[i] = ifelse(tmean[i]<low_thresh_temp | snowpack[i-1]==0, 0, 
                      ifelse(melt_delta[i]>snowpack[i-1], 
                             snowpack[i-1], melt_delta[i]))
     snowpack[i] = snowpack[i-1]+snow[i]-melt[i]
