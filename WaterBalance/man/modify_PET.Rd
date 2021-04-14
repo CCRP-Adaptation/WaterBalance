@@ -20,5 +20,5 @@ modify_PET(pet, slope, aspect, lat, freeze, shade.coeff = NULL)
 \item{shade.coeff}{(optional) A shade coefficient from 0-1. Default is 1.}
 }
 \description{
-Modifies PET by heat load according to method by Lutz et al. (2010)
+Modifies PET by heat load according to method by Lutz et al. (2010).
 }

@@ -13,6 +13,8 @@ get_soil(w, swc.0 = NULL, pet, w_pet, swc.max)
 
 \item{pet}{A time series vector of PET.}
 
+\item{w_pet}{A time series vector of the difference between w and pet.}
+
 \item{swc.max}{The maximum soil water-holding capacity of the soil layer being assessed.}
 }
 \description{

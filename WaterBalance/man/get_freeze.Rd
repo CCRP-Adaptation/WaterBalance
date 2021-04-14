@@ -2,15 +2,15 @@
 % Please edit documentation in R/WB_Functions.R
 \name{get_freeze}
 \alias{get_freeze}
-\title{Freeze factor using Jennings et al. 2018 thresholds to partition rain and snow}
+\title{Freeze factor using Jennings et al., 2018 thresholds to partition rain and snow}
 \usage{
-get_freeze(j_temp, tmean)
+get_freeze(jtemp, tmean)
 }
 \arguments{
-\item{j_temp}{the Jennings temperature extracted from the raster based on latitude and longitude}
+\item{jtemp}{the Jennings temperature extracted from the raster based on latitude and longitude.}
 
 \item{tmean}{A vector of daily mean temperatures (deg C).}
 }
 \description{
-Calculates a freeze factor from 0-1 based on a temperature threshold from Jennings et al. 2018 and average temperature.
+Calculates a freeze factor from 0-1 based on a temperature threshold from Jennings et al., 2018 and average temperature.
 }

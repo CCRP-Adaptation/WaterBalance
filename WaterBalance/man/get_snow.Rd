@@ -9,8 +9,8 @@ get_snow(ppt, freeze)
 \arguments{
 \item{ppt}{A vector of precipitation values.}
 
-\item{freeze}{A vector of freeze factor values, calculated from Tmean. Values are 0-1.}
+\item{freeze}{A vector of freeze factor values, calculated from average temperature and Jennings et al., 2018. Values are 0-1.}
 }
 \description{
-Calculates snowfall totals based on precipitation and freeze factor
+Calculates snowfall totals based on precipitation and freeze factor.
 }

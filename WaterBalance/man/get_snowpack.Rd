@@ -4,18 +4,16 @@
 \alias{get_snowpack}
 \title{Snowpack}
 \usage{
-get_snowpack(j_temp, snow, melt, sp.0 = NULL)
+get_snowpack(jtemp, snow, melt, sp.0 = NULL)
 }
 \arguments{
-\item{j_temp}{the Jennings temperature extracted from the raster based on latitude and longitude}
+\item{jtemp}{the Jennings temperature extracted from the raster based on latitude and longitude.}
 
 \item{snow}{A time series vector of snowfall values.}
 
 \item{melt}{A time series vector of snowmelt.}
 
 \item{sp.0}{(optional) Initial snowpack value. Default is 0.}
-
-\item{low_thresh_temp}{the Jennings coefficient minus 3 degrees C.}
 }
 \description{
 Calculates snowpack accumulation at time steps, from a time series of snowfall and melt.
