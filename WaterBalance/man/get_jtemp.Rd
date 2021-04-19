@@ -4,12 +4,12 @@
 \alias{get_jtemp}
 \title{Temperature threshold using Jennings et al., 2018 to partition rain and snow}
 \usage{
-get_jtemp(Lon, Lat)
+get_jtemp(Lat, Lon)
 }
 \arguments{
-\item{Lon}{Longitude of the site (degrees).}
-
 \item{Lat}{Latitude of the site (degrees).}
+
+\item{Lon}{Longitude of the site (degrees).}
 }
 \description{
 Extracts the rain-snow temperature threshold from a raster.
