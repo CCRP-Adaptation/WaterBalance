@@ -32,17 +32,9 @@ get_jtemp = function(Lat, Lon){
 #' get_freeze()
 
 get_freeze = function(jtemp, tmean){
-  freeze <- vector()
-  freeze[1] = ifelse(tmean[1]<= (jtemp[1]-3),0,
-                     ifelse(tmean[1]>=(jtemp[1]+3),1,
-                            (1/((jtemp[1]+3) - (jtemp[1]-3)))*(tmean[1]-(jtemp[1]-3))))
-  for(i in 2:length(tmean)){
-    freeze[i] = ifelse(
-      tmean[i] <= (jtemp[i]-3), 0, 
-      ifelse(tmean[i] >= (jtemp[i]+3),
-             1, (0.167*(tmean[i]-(jtemp[i]-3)))))
-  }
-  return(freeze)
+  freeze=ifelse(tmean<= (jtemp-3),0,
+                ifelse(tmean>=(jtemp+3),1,
+                       (1/((jtemp+3) - (jtemp-3)))*(tmean-(jtemp-3))))
 }
 
 #' Rain
