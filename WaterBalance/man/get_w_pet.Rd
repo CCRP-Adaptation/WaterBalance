@@ -7,7 +7,7 @@
 get_w_pet(w, pet)
 }
 \arguments{
-\item{w}{A time series vector of water reaching soil surface as snow plus rain}
+\item{w}{A time series vector of water reaching soil surface as snow plus rain.}
 
 \item{pet}{A time series vector of PET values.}
 }

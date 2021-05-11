@@ -11,13 +11,11 @@ get_runoff(ppt, w, d_soil, AET, R.coeff = NULL)
 
 \item{w}{A time series vector of available water for soil charging (rain + snowmelt).}
 
+\item{d_soil}{A time series vector of change in soil moisture from previous day.}
+
 \item{AET}{A time series vector of actual evapotranspiration.}
 
 \item{R.coeff}{A fraction of precpitation that can be shunted to direct runoff.}
-
-\item{D_soil}{A time series vector of change in soil moisture from previous day.}
-
-\item{DRO}{A time series vector of direct runoff or fraction of precipitation shunted to runoff.}
 }
 \description{
 Calculates runoff at daily timesteps based on water reaching soil surface, AET, change in soil moisture, and a runoff coefficient
