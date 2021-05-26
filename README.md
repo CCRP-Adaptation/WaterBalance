@@ -1,15 +1,27 @@
-# WaterBalance
-R package for implementing Dave Thoma's water balance spreadsheet model
+# Initial installation of the WaterBalance package
+
+This repository consists of (1) scripts and data pertaining to the development of the Water Balance package and (2) the most recent working version of the Water Balance package. The Water Balance package is a custom-built R package implementing Dave Thoma's water balance spreadsheet model. The package is contained within in the following folder: `"./WaterBalance/WaterBalance"`
+
+In order to use the package within the R environment, the package must be copied and pasted into your R package library. The location of this library can vary based on user preferences. An example location may be `C:/Users/yourname/Documents/R/win-library/4.0`. The package can be copied and pasted directly from this repository into your local folder. Once the package is copied and pasted in the same folder as your other packages, it can be installed in R using the following code:
+
+```
+library("devtools")
+install("WaterBalance")
+```
+
+The package should then install and can be called into the workspace via the `library()` function. 
+
+**If the package does not work, follow the instructions below:**
 
 
-#TO REINSTALL WATERBALANCE PACKAGE AFTER R IS UPDATED USING THE COPY-PASTE METHOD IN WINDOWS
+#Rebuilding the WaterBalance package using the copy-paste method in Windows 
 
-* These instructions pertain to R updates in which the WaterBalance package is copied from 
-the previous version's win-library folder and pasted into the current version's win-library folder.
+These instructions should be followed when the WaterBalance package needs to be rebuilt. This may occur upon initial installation, or after R is updated to a major new version. The WaterBalance package should already be copied and pasted into the win-library folder per instructions above. 
 
-If the WaterBalance package does not work after R is updated, the user *may* need to do the following:
 
-1. In R 4.0.x, check to see that the "Maintainer" field in the package DESCRIPTION is formatted as follows:
+If the WaterBalance package does not work upon initial installation or after R is updated, the user *may* need to do the following:
+
+1. In R version >= 4.0.x, check to see that the "Maintainer" field in the package DESCRIPTION is formatted as follows:
 
 ```Annie Kellner Dillon <anne_dillon@nps.gov>```
 
