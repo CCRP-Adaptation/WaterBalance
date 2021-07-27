@@ -11,7 +11,7 @@ install("WaterBalance")
 
 The package should then install and can be called into the workspace via the `library()` function. 
 
-**If the package does not work, try this:**
+**If the installation does not work, try this:**
 
 Navigate to [this location on the shared drive](https://doimspp.sharepoint.com/sites/NPS-CCRP-FCScienceAdaptation/Shared%20Documents/Forms/AllItems.aspx?xsdata=MDN8MDF8fGI4ODE0YTI1NTJkZDRiOGVhNGY0NWE1ZTZkN2RlNGU4fDA2OTNiNWJhNGIxODRkN2I5MzQxZjMyZjQwMGE1NDk0fDF8MHwzMTU1Mzc4OTc1OTk5OTk5OTk5fEdvb2R8VkdWaGJYTlRaV04xY21sMGVWTmxjblpwWTJWOGV5SldJam9pTUM0d0xqQXdNREFpTENKUUlqb2lJaXdpUVU0aU9pSWlMQ0pYVkNJNk1USjk&sdata=MnRsRW5BOGZlMWNwa1NsM0NlOUV0Y2xtaTUzdm5FanF5UVFWakh2WTBzVT0&ovuser=0693b5ba%2D4b18%2D4d7b%2D9341%2Df32f400a5494%2Cadillon%40nps%2Egov&viewid=54c972dc%2D7b2e%2D4eb7%2Da737%2D42792988c0b3&id=%2Fsites%2FNPS%2DCCRP%2DFCScienceAdaptation%2FShared%20Documents%2FGeneral%2FWater%2FWB%2FWB%20Package%201%2E1%2E0) and download `WaterBalance_1.1.0.tar.gz` into your package library. Now repeat the steps above as follows:
 
