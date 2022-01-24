@@ -42,7 +42,7 @@ If the WaterBalance package does not work upon initial installation or after R i
 
 1. In R version >= 4.0.x, check to see that the "Maintainer" field in the package DESCRIPTION is formatted as follows:
 
-```Annie Kellner Dillon <anne_dillon@nps.gov>```
+```Amber Runyon <amber_runyon@nps.gov>```
 
 2. The WaterBalance package may need to be rebuilt. To do this, follow these steps:
 
